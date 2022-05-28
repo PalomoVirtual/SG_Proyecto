@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title>Ejemplo Básico: Grapadora</title>
+    <meta charset="utf-8">
+    <script type="text/javascript" src="../libs/jquery.js"></script>
+    <!-- <script type="text/javascript" src="MyScene.js"></script>     -->
+    <script type="module" src="MyScene.js"></script>    
+    <style>
+        body{
+            margin: 0;
+            overflow: hidden; 
+            background-color: rgb(105, 105, 105);
+            width: 100%;
+        }
+        p{
+            text-align: center;
+            white-space: pre;
+            font-size: 1.7vw;
+        }
+        #controles{
+            width: 100%;
+            position: absolute;
+            top: 50%;
+            -ms-transform: translate(0%, -50%);
+            transform: translate(0%, -50%);
+            padding-top: 50%;
+            padding-bottom: 50%;
+        }
+        #WebGL-output{
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Div which will hold the Output -->
+<div id="controles">
+    <div>
+        <p>
+            Jugar: click | Pausa: ESC
+        </p>
+        <p>
+            Izquierda: A  |  Derecha: D  |  Adelante: W  |  Atrás: S  |  Salto: BARRA ESPACIADORA  |  Mirar alrededor: PUNTERO
+        </p>
+    </div>
+</div>
+<div id="WebGL-output">
+</div>
+</body>
+</html>
