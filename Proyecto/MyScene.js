@@ -42,7 +42,7 @@ class MyScene extends THREE.Scene {
     this.renderer = this.createRenderer(myCanvas);
     
     this.gui = this.createGUI ();    
-
+    
     this.createLights ();
     
     this.createCamera ();
@@ -51,7 +51,7 @@ class MyScene extends THREE.Scene {
 
     this.createWalls();
 
-    // this.createBackground();
+    this.createBackground();
 
     this.axis = new THREE.AxesHelper (5);
     this.add (this.axis);
@@ -123,8 +123,8 @@ class MyScene extends THREE.Scene {
   }
 
   createCamera () {
-    this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-    this.camera.position.set (-450, 3, 6);
+    this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 2200);
+    this.camera.position.set (0, 3, -300);
     var look = new THREE.Vector3 (0,0,0);
     this.camera.lookAt(look);
     this.add (this.camera);
@@ -211,20 +211,20 @@ class MyScene extends THREE.Scene {
   }
   
   createBackground(){
-    var geometryGround = new THREE.BoxGeometry (30,30,30);
+    var geometryBackground = new THREE.SphereGeometry (1500,100,100);
     
-    var texture = new THREE.TextureLoader().load('../imgs/suelo4.jpg');
+    var texture = new THREE.TextureLoader().load('../imgs/fondo3.jpg');
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
-    texture.repeat.set(64, 64);
+    texture.repeat.set(16, 2);
     texture.anisotropy =  this.renderer.capabilities.getMaxAnisotropy() 
-    var materialGround = new THREE.MeshPhongMaterial ({map: texture});
     
-    var ground = new THREE.Mesh (geometryGround, materialGround);
+    var materialBackground = new THREE.MeshBasicMaterial ({map: texture});
+    materialBackground.side = THREE.BackSide;
     
-    ground.position.y = -0.1;
-    
-    this.add (ground);
+    var background = new THREE.Mesh (geometryBackground, materialBackground);
+        
+    this.add (background);
   }
 
   createGUI () {
@@ -247,14 +247,21 @@ class MyScene extends THREE.Scene {
     
     return gui;
   }
-  
+
   createLights () {
     var ambientLight = new THREE.AmbientLight(0xccddee, 0.35);
     this.add (ambientLight);
     
     this.spotLight = new THREE.SpotLight( 0xffffff, this.guiControls.lightIntensity );
-    this.spotLight.position.set( 60, 60, 40 );
+    this.spotLight.position.set( 0, 200, 300);
+    this.spotLight.angle = 2*Math.PI/5;
+    this.spotLight.penumbra = 0.4;
+    this.spotLight.target.position.set(0, 5, -150);
+    var spotLightHelper = new THREE.SpotLightHelper(this.spotLight);
+    this.add(spotLightHelper);
+
     this.add (this.spotLight);
+    this.add (this.spotLight.target);
   }
   
   setLightIntensity (valor) {
@@ -339,16 +346,16 @@ class MyScene extends THREE.Scene {
         this.cameraControls.getObject().position.y = 10;
         canJump = true;
       }
-      // if(Math.abs(this.cameraControls.getObject().position.x) > 496){
-      //   velocity.x = 0;
-      //   var signo = this.cameraControls.getObject().position.x / Math.abs(this.cameraControls.getObject().position.x);
-      //   this.cameraControls.getObject().position.x = 496 * signo;
-      // }
-      // if(Math.abs(this.cameraControls.getObject().position.z) > 496){
-      //   velocity.z = 0;
-      //   var signo = this.cameraControls.getObject().position.z / Math.abs(this.cameraControls.getObject().position.z);
-      //   this.cameraControls.getObject().position.z = 496 * signo;
-      // }
+      if(Math.abs(this.cameraControls.getObject().position.x) > 496){
+        velocity.x = 0;
+        var signo = this.cameraControls.getObject().position.x / Math.abs(this.cameraControls.getObject().position.x);
+        this.cameraControls.getObject().position.x = 496 * signo;
+      }
+      if(Math.abs(this.cameraControls.getObject().position.z) > 496){
+        velocity.z = 0;
+        var signo = this.cameraControls.getObject().position.z / Math.abs(this.cameraControls.getObject().position.z);
+        this.cameraControls.getObject().position.z = 496 * signo;
+      }
 
     }
   }
