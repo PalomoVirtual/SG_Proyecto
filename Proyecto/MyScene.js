@@ -19,7 +19,7 @@ import { Grapadora } from './Grapadora.js'
 
 const VMIN = 0;
 const VMAX = Math.PI;
-const CHARACTERSPEED = 1;
+const CHARACTERSPEED = 800;
 const CERO = 0.01;
 const GRAVEDAD = 980;
 const FACTORFRENADO = 10;
@@ -48,6 +48,10 @@ class MyScene extends THREE.Scene {
     this.createCamera ();
     
     this.createGround ();
+
+    this.createWalls();
+
+    // this.createBackground();
 
     this.axis = new THREE.AxesHelper (5);
     this.add (this.axis);
@@ -120,7 +124,7 @@ class MyScene extends THREE.Scene {
 
   createCamera () {
     this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-    this.camera.position.set (6, 3, 6);
+    this.camera.position.set (-450, 3, 6);
     var look = new THREE.Vector3 (0,0,0);
     this.camera.lookAt(look);
     this.add (this.camera);
@@ -160,9 +164,13 @@ class MyScene extends THREE.Scene {
   }
   
   createGround () {
-    var geometryGround = new THREE.BoxGeometry (50,0.2,50);
+    var geometryGround = new THREE.BoxGeometry (1000,0.2,1000);
     
-    var texture = new THREE.TextureLoader().load('../imgs/wood.jpg');
+    var texture = new THREE.TextureLoader().load('../imgs/suelo3.jpg');
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set(64, 64);
+    texture.anisotropy =  this.renderer.capabilities.getMaxAnisotropy() 
     var materialGround = new THREE.MeshPhongMaterial ({map: texture});
     
     var ground = new THREE.Mesh (geometryGround, materialGround);
@@ -171,12 +179,59 @@ class MyScene extends THREE.Scene {
     
     this.add (ground);
   }
+
+  createWalls(){
+    
+    var texture = new THREE.TextureLoader().load('../imgs/muro1.jpg');
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set(128, 4);
+    texture.anisotropy =  this.renderer.capabilities.getMaxAnisotropy();
+    
+    var materialWall = new THREE.MeshPhongMaterial ({map: texture, shininess: 20, color: 0xaaaaaa});
+    
+    var geometryWall = new THREE.BoxGeometry (1000,40,1);
+    geometryWall.translate(0, 12.5, 500.1);
+    
+    var geometryWall1 = new THREE.BoxGeometry(), geometryWall2 = new THREE.BoxGeometry(), geometryWall3 = new THREE.BoxGeometry(), geometryWall4 = new THREE.BoxGeometry();
+    geometryWall1.copy(geometryWall);
+    geometryWall2.copy(geometryWall).rotateY(Math.PI/2);
+    geometryWall3.copy(geometryWall).rotateY(Math.PI);
+    geometryWall4.copy(geometryWall).rotateY(-Math.PI/2);
+    
+    var wall1 = new THREE.Mesh (geometryWall1, materialWall);
+    var wall2 = new THREE.Mesh (geometryWall2, materialWall);
+    var wall3 = new THREE.Mesh (geometryWall3, materialWall);
+    var wall4 = new THREE.Mesh (geometryWall4, materialWall);
+        
+    this.add (wall1);
+    this.add (wall2);
+    this.add (wall3);
+    this.add (wall4);
+  }
   
+  createBackground(){
+    var geometryGround = new THREE.BoxGeometry (30,30,30);
+    
+    var texture = new THREE.TextureLoader().load('../imgs/suelo4.jpg');
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set(64, 64);
+    texture.anisotropy =  this.renderer.capabilities.getMaxAnisotropy() 
+    var materialGround = new THREE.MeshPhongMaterial ({map: texture});
+    
+    var ground = new THREE.Mesh (geometryGround, materialGround);
+    
+    ground.position.y = -0.1;
+    
+    this.add (ground);
+  }
+
   createGUI () {
     var gui = new GUI();
     
     this.guiControls = {
-      lightIntensity : 0.5,
+      lightIntensity : 1,
       axisOnOff : true
     }
     
@@ -239,7 +294,6 @@ class MyScene extends THREE.Scene {
   
   actualizaPosicion(){
     if ( this.cameraControls.isLocked === true ) {
-      console.log(velocity.y);
       var delta = clock.getDelta();
 
       velocity.x -= velocity.x * FACTORFRENADO * delta;
@@ -261,7 +315,7 @@ class MyScene extends THREE.Scene {
       }
 
       if(moveLeft || moveRight){
-        velocity.x -= direction.x * 400.0 * delta;
+        velocity.x -= direction.x * CHARACTERSPEED * delta;
       }
       else{
         if(Math.abs(velocity.x) <= CERO){
@@ -285,6 +339,16 @@ class MyScene extends THREE.Scene {
         this.cameraControls.getObject().position.y = 10;
         canJump = true;
       }
+      // if(Math.abs(this.cameraControls.getObject().position.x) > 496){
+      //   velocity.x = 0;
+      //   var signo = this.cameraControls.getObject().position.x / Math.abs(this.cameraControls.getObject().position.x);
+      //   this.cameraControls.getObject().position.x = 496 * signo;
+      // }
+      // if(Math.abs(this.cameraControls.getObject().position.z) > 496){
+      //   velocity.z = 0;
+      //   var signo = this.cameraControls.getObject().position.z / Math.abs(this.cameraControls.getObject().position.z);
+      //   this.cameraControls.getObject().position.z = 496 * signo;
+      // }
 
     }
   }
