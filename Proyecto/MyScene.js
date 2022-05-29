@@ -6,10 +6,14 @@ import { GUI } from '../libs/dat.gui.module.js'
 import { TrackballControls } from '../libs/TrackballControls.js'
 import { FirstPersonControls } from '../libs/FirstPersonControls.js'
 import { PointerLockControls } from '../libs/PointerLockControls.js'
+// import { PointerLockControl } from '../libs/PointerLockControls.js'
 
 // Clases de mi proyecto
 
 import { Grapadora } from './Grapadora.js'
+import { Personaje } from './Personaje.js'
+import { Arma } from './Arma.js'
+import { Mirilla } from './Mirilla.js'
 
  
 /// La clase fachada del modelo
@@ -19,12 +23,12 @@ import { Grapadora } from './Grapadora.js'
 
 const VMIN = 0;
 const VMAX = Math.PI;
-const CHARACTERSPEED = 800;
+const CHARACTERSPEED = 1400;
 const CERO = 0.01;
 const GRAVEDAD = 980;
 const FACTORFRENADO = 10;
 const VSALTO = 200;
-var velocidadMax = 800;
+// var velocidadMax = 800;
 var moveForward = false;
 var moveBackward = false;
 var moveLeft = false;
@@ -45,19 +49,25 @@ class MyScene extends THREE.Scene {
 
     this.createLights ();
     
-    this.createCamera ();
+    // this.createMirilla();
+
+    this.createPersonaje();
     
     this.createGround ();
-
+    
     this.createWalls();
-
+    
     this.createBackground();
 
+    this.mirilla = new Mirilla();
+    this.mirilla.position.z = -1;
+    this.mirilla.scale.set(0.03, 0.03, 0.03);
+    this.add(this.mirilla);
+    
     this.axis = new THREE.AxesHelper (5);
     this.add (this.axis);
     
-    this.model = new Grapadora(this.gui, "Controles de la Grapadora");
-    this.add (this.model);
+    this.createCamera ();
   }
 
   onKeyDown(event){
@@ -123,8 +133,8 @@ class MyScene extends THREE.Scene {
   }
 
   createCamera () {
-    this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 2200);
-    this.camera.position.set (0, 3, -300);
+    this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 2200);
+    this.camera.position.set (0, 20, -300);
     var look = new THREE.Vector3 (0,0,0);
     this.camera.lookAt(look);
     this.add (this.camera);
@@ -158,6 +168,8 @@ class MyScene extends THREE.Scene {
     });
     
     this.add(this.cameraControls.getObject());
+    this.camera.add(this.mirilla);
+    this.camera.add(this.model);
     
     document.addEventListener('keydown', this.onKeyDown);
     document.addEventListener('keyup', this.onKeyUp);
@@ -284,6 +296,26 @@ class MyScene extends THREE.Scene {
     return renderer;  
   }
   
+  createPersonaje(){
+    // this.model = new Personaje(this.gui, "Controles modelo");
+    // this.model.scale.set(0.1, 0.1, 0.1);
+    // this.model.rotation.y = Math.PI;
+    // // this.model.rotation.x = Math.PI/2;
+    // this.model.position.y = -10;
+    // // this.model.position.y = -5;
+    // // this.model.position.z = 1.80;
+    // this.model.position.z = -25;
+    // // this.add (this.model);
+    
+    this.model = new Arma();
+    this.model.scale.set(0.08, 0.08, 0.08);
+    this.model.position.y = -5;
+    this.model.position.x = 5;
+    this.model.rotation.y = Math.PI;
+    this.model.position.z = -5.80;
+    this.add(this.model);
+  }
+
   getCamera () {
     return this.camera;
   }
@@ -301,8 +333,6 @@ class MyScene extends THREE.Scene {
   
   actualizaPosicion(){
     if ( this.cameraControls.isLocked === true ) {
-      console.log("Velocidad x: " + velocity.x);
-      console.log("Velocidad z: " + velocity.z);
       var delta = clock.getDelta();
 
       velocity.x -= velocity.x * FACTORFRENADO * delta;
@@ -315,7 +345,7 @@ class MyScene extends THREE.Scene {
       direction.normalize();
       
       if(moveForward || moveBackward){
-        velocity.z -= direction.z * velocidadMax * delta;
+        velocity.z -= direction.z * CHARACTERSPEED * delta;
       }
       else{
         if(Math.abs(velocity.z) <= CERO){
@@ -343,9 +373,9 @@ class MyScene extends THREE.Scene {
       this.cameraControls.moveForward( - velocity.z * delta );
       this.cameraControls.getObject().position.y += ( velocity.y * delta );
       
-      if(this.cameraControls.getObject().position.y < 10){
+      if(this.cameraControls.getObject().position.y < 20){
         velocity.y = 0;
-        this.cameraControls.getObject().position.y = 10;
+        this.cameraControls.getObject().position.y = 20;
         canJump = true;
       }
       if(Math.abs(this.cameraControls.getObject().position.x) > 496){
@@ -357,14 +387,36 @@ class MyScene extends THREE.Scene {
         this.cameraControls.getObject().position.z = 496 * signo;
       }
 
+      // var look = this.cameraControls.getDirection();
+      // var look = new THREE.Vector3 (0,0,0);
+      // this.camera.children[0].rotation
+      // look = this.cameraControls.getDirection(look);
+      // var x = look.x, y = look.y, z = look.z;
+      // var gradosCompensacion;
+      // if(y > 0){
+      //   gradosCompensacion = Math.atan(Math.sqrt(Math.pow(x, 2) + Math.pow(z, 2)) / y) - Math.PI/2;
+      // }
+      // else if(y < 0){
+      //   gradosCompensacion = Math.atan(Math.sqrt(Math.pow(x, 2) + Math.pow(z, 2)) / y) + Math.PI/2;
+      // }
+      // else{
+      //   gradosCompensacion = 0;
+      // }
+      // this.camera.children[0].rotation.x = gradosCompensacion;
+      // this.camera.children[0].position.y = -10;
+      // this.camera.children[0].position.z = -40.8;
+      // console.log(this.cameraControls.getDirection(look));
+      // console.log((180/Math.PI)*gradosCompensacion);
+
     }
   }
+  
 
   update () {
 
     this.renderer.render (this, this.getCamera());
   
-    // this.model.update();
+    this.model.update();
     this.actualizaPosicion();
 
     requestAnimationFrame(() => this.update());
