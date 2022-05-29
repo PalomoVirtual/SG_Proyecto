@@ -23,8 +23,17 @@ class Arma extends THREE.Object3D {
             }, null, null);
         });
   }
+
+  hayBalas(){
+      return this.children.length > 1;
+  }
   
   update () {
+      if(this.hayBalas()){
+        for(var i = 1; i<this.children.length; i++){
+            this.children[i].update();
+        }
+      }
     // No hay nada que actualizar ya que la apertura de la grapadora se ha actualizado desde la interfaz
   }
 }

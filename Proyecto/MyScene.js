@@ -14,6 +14,7 @@ import { Grapadora } from './Grapadora.js'
 import { Personaje } from './Personaje.js'
 import { Arma } from './Arma.js'
 import { Mirilla } from './Mirilla.js'
+import { Proyectil } from './Proyectil.js'
 
  
 /// La clase fachada del modelo
@@ -28,21 +29,27 @@ const CERO = 0.01;
 const GRAVEDAD = 980;
 const FACTORFRENADO = 10;
 const VSALTO = 200;
+const BULLETSPEED = 100;
+var contador = 0;
 // var velocidadMax = 800;
 var moveForward = false;
 var moveBackward = false;
 var moveLeft = false;
 var moveRight = false;
 var canJump = false;
+var balas = 40;
 const velocity = new THREE.Vector3();
 const direction = new THREE.Vector3();
 const clock = new THREE.Clock();
+// var alineables = [];
 
   
 class MyScene extends THREE.Scene {
   constructor (myCanvas) { 
     super();
     
+    this.alineables = [];
+
     this.renderer = this.createRenderer(myCanvas);
     
     this.gui = this.createGUI ();    
@@ -58,6 +65,8 @@ class MyScene extends THREE.Scene {
     this.createWalls();
     
     this.createBackground();
+
+    this.createRaycaster();
 
     this.mirilla = new Mirilla();
     this.mirilla.position.z = -1;
@@ -132,6 +141,10 @@ class MyScene extends THREE.Scene {
     }
   }
 
+  createRaycaster(){
+    this.raycaster = new THREE.Raycaster();
+  }
+
   createCamera () {
     this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 2200);
     this.camera.position.set (0, 20, -300);
@@ -170,7 +183,100 @@ class MyScene extends THREE.Scene {
     this.add(this.cameraControls.getObject());
     this.camera.add(this.mirilla);
     this.camera.add(this.model);
+    this.arrayBalas = [];
+
+
+
+    // raycaster_crosshair.set(camera.getWorldPosition(),camera.getWorldDirection());
+	  // var intersection = raycaster_crosshair.intersectObjects(objetivos, true);
+
+	  // direccion = null;
+	  
+	  // if (intersection.length > 0)
+		//   var direccion = intersection[0].point;
+	  
+	  // return(direccion);
+
+
+
+
+
+    var camera = this.camera;
+    var cameraControls = this.cameraControls;
+    var raycaster = this.raycaster;
+    var thisRef = this;
+    var arma = this.model;
+    var alineables = this.alineables;
+    // var posicionBala = new THREE.Vector3(0, 5, -300);
+
+    document.addEventListener('click', function (){
+      if(cameraControls.isLocked && balas > 0){
+      
+        // var look = new THREE.Vector3();
+        // look = this.cameraControls.getDirection(look);
+        raycaster.setFromCamera(new THREE.Vector2(), camera);
+        // console.log(alineables);
+        var alineados = raycaster.intersectObjects(alineables, true);
+        
+        if(alineados.length > 0){
+          var masCercano = alineados[0];
+          var puntoImpacto = masCercano.point;
+          var bala = new Proyectil(thisRef, arma);
+          // bala.position.z = -150;
+          // bala.scale.set(0.2, 0.2, 0.2);
+          // bala.scale.set(1, 1, 1);
+          // console.log(arma);
+          // bala.position.x = puntoImpacto.x;
+          // bala.position.y = puntoImpacto.y;
+          // bala.position.z = puntoImpacto.z;
+          // console.log(posicionBala);
+          // console.log(arma);
+          bala.velocity = BULLETSPEED;
+          var look = new THREE.Vector3;
+          var direccion = cameraControls.getDirection(look).normalize();
+          
+          var distanciaInicialBala = Math.sqrt(Math.pow(-5, 2) + Math.pow(-4.3, 2) + Math.pow(20.3, 2));
+          
+          bala.position.x = camera.position.x+direccion.x*distanciaInicialBala;
+          bala.position.y = camera.position.y+direccion.y*distanciaInicialBala;
+          bala.position.z = camera.position.z+direccion.z*distanciaInicialBala;
+          
+          bala.setTrayectoria(puntoImpacto, new THREE.Vector3(bala.position.x, bala.position.y, bala.position.z))
+
+
+          // var rotacionYRadianes = -(Math.PI)/3, rotacionXRadianes = 0;
+
+          // var nuevaX, nuevaY, nuevaZ;
+          // nuevaX = direccion.x*distanciaInicialBala;
+          // nuevaY = direccion.y*distanciaInicialBala*Math.cos(rotacionXRadianes) - direccion.z*distanciaInicialBala*Math.sin(rotacionXRadianes);
+          // nuevaZ = direccion.y*distanciaInicialBala*Math.sin(rotacionXRadianes) + direccion.z*distanciaInicialBala*Math.cos(rotacionXRadianes);
+          
+          // nuevaX = nuevaZ*Math.sin(rotacionYRadianes) + nuevaX*Math.cos(rotacionYRadianes);
+          // nuevaZ = nuevaZ*Math.cos(rotacionYRadianes) - nuevaX*Math.sin(rotacionYRadianes);
+
+          // bala.position.x = camera.position.x + nuevaX;
+          // bala.position.y = camera.position.y + nuevaY;
+          // bala.position.z = camera.position.z + nuevaZ;
+
+          // console.log(distanciaInicialBala + " vs " + Math.sqrt(Math.pow(nuevaX, 2) + Math.pow(nuevaY, 2) + Math.pow(nuevaZ, 2)));
+          // console.log(distanciaInicialBala == Math.sqrt(Math.pow(nuevaX, 2) + Math.pow(nuevaY, 2) + Math.pow(nuevaZ, 2)))
+          // bala.position.x += -2;
+          // bala.position.y += -4.3;
+          // bala.position.z += 2.3;
+          
+          arma.add(bala);
+          bala.setIndiceArma(arma.children.length-1);
+          // arma.children[arma.children.length-1].rotation.y = Math.PI/8;
+          // arma.children[arma.children.length-1].rotation.x = 0;
+
+          thisRef.arrayBalas.push(bala);
+          // console.log()
+          thisRef.add(bala);
+          bala.setIndices(thisRef.arrayBalas.length-1, thisRef.children.length-1);
     
+        }
+      }
+    });
     document.addEventListener('keydown', this.onKeyDown);
     document.addEventListener('keyup', this.onKeyUp);
   }
@@ -189,6 +295,7 @@ class MyScene extends THREE.Scene {
     
     ground.position.y = -0.1;
     
+    this.alineables.push(ground);
     this.add (ground);
   }
 
@@ -212,9 +319,13 @@ class MyScene extends THREE.Scene {
     geometryWall4.copy(geometryWall).rotateY(-Math.PI/2);
     
     var wall1 = new THREE.Mesh (geometryWall1, materialWall);
+    this.alineables.push(wall1);
     var wall2 = new THREE.Mesh (geometryWall2, materialWall);
+    this.alineables.push(wall2);
     var wall3 = new THREE.Mesh (geometryWall3, materialWall);
+    this.alineables.push(wall3);
     var wall4 = new THREE.Mesh (geometryWall4, materialWall);
+    this.alineables.push(wall4);
         
     this.add (wall1);
     this.add (wall2);
@@ -235,6 +346,7 @@ class MyScene extends THREE.Scene {
     materialBackground.side = THREE.BackSide;
     
     var background = new THREE.Mesh (geometryBackground, materialBackground);
+    this.alineables.push(background);
         
     this.add (background);
   }
@@ -249,7 +361,7 @@ class MyScene extends THREE.Scene {
     
     var folder = gui.addFolder ('Luz y Ejes');
     
-    folder.add (this.guiControls, 'lightIntensity', 0, 1, 0.1)
+    folder.add (this.guiControls, 'lightIntensity', 0, 3, 0.1)
     .name('Intensidad de la Luz : ')
     .onChange ( (value) => this.setLightIntensity (value) );
     
@@ -413,11 +525,23 @@ class MyScene extends THREE.Scene {
   
 
   update () {
-
-    this.renderer.render (this, this.getCamera());
+    if(this.cameraControls.isLocked){
+      if(contador == 0){
+        // console.log(this.arrayBalas);
+      }
+      contador++;
+      if(contador >= 2000){
+        contador = 0;
+      }
+      this.renderer.render (this, this.getCamera());
+    
+      this.model.update();
+      this.actualizaPosicion();
   
-    this.model.update();
-    this.actualizaPosicion();
+      for(var i = 0; i<this.arrayBalas.length; i++){
+        this.arrayBalas[i].update();
+      }
+    }
 
     requestAnimationFrame(() => this.update());
   }
