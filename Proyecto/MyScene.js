@@ -42,7 +42,7 @@ class MyScene extends THREE.Scene {
     this.renderer = this.createRenderer(myCanvas);
     
     this.gui = this.createGUI ();    
-    
+
     this.createLights ();
     
     this.createCamera ();
@@ -301,6 +301,8 @@ class MyScene extends THREE.Scene {
   
   actualizaPosicion(){
     if ( this.cameraControls.isLocked === true ) {
+      console.log("Velocidad x: " + velocity.x);
+      console.log("Velocidad z: " + velocity.z);
       var delta = clock.getDelta();
 
       velocity.x -= velocity.x * FACTORFRENADO * delta;
@@ -347,12 +349,10 @@ class MyScene extends THREE.Scene {
         canJump = true;
       }
       if(Math.abs(this.cameraControls.getObject().position.x) > 496){
-        velocity.x = 0;
         var signo = this.cameraControls.getObject().position.x / Math.abs(this.cameraControls.getObject().position.x);
         this.cameraControls.getObject().position.x = 496 * signo;
       }
       if(Math.abs(this.cameraControls.getObject().position.z) > 496){
-        velocity.z = 0;
         var signo = this.cameraControls.getObject().position.z / Math.abs(this.cameraControls.getObject().position.z);
         this.cameraControls.getObject().position.z = 496 * signo;
       }
