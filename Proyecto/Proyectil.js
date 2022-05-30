@@ -1,7 +1,7 @@
 
 import * as THREE from '../libs/three.module.js'
 
-const clock = new THREE.Clock();
+// const clock = new THREE.Clock();
 const MINCOLISION = 5;
 
 class Proyectil extends THREE.Object3D {
@@ -12,16 +12,17 @@ class Proyectil extends THREE.Object3D {
     var bulletGeometry = new THREE.SphereGeometry(1, 200, 200);
     var bullet = new THREE.Mesh(bulletGeometry, bulletMaterial);
     this.velocity = 0;
-
+    this.clock = new THREE.Clock();
     this.escena = escena;
     this.arma = arma;
     this.add(bullet);
   }
 
   setTrayectoria(puntoImpacto, puntoOrigen){
-    this.puntoActual = new THREE.Vector3; 
+    this.puntoActual = new THREE.Vector3(); 
     this.puntoActual = puntoOrigen;
-    this.trayectoria = new THREE.Vector3(puntoImpacto.x-puntoOrigen.x, puntoImpacto.y-puntoOrigen.y, puntoImpacto.z-puntoOrigen.z)
+    this.trayectoria = new THREE.Vector3(puntoImpacto.x-puntoOrigen.x, puntoImpacto.y-puntoOrigen.y, puntoImpacto.z-puntoOrigen.z);
+    this.longitudTrayectoria = Math.sqrt(Math.pow(this.trayectoria.x, 2) + Math.pow(this.trayectoria.y, 2) + Math.pow(this.trayectoria.z, 2));
   }
 
   setIndices(indiceArray, indiceGrafo){
@@ -40,13 +41,13 @@ class Proyectil extends THREE.Object3D {
   }
 
   distancia(objeto, punto){
-    Math.sqrt(Math.pow(punto.x-objeto.position.x, 2), Math.pow(punto.y-objeto.position.y, 2), Math.pow(punto.z-objeto.position.z, 2));
+    Math.sqrt(Math.pow(punto.x-objeto.position.x, 2) + Math.pow(punto.y-objeto.position.y, 2) + Math.pow(punto.z-objeto.position.z, 2));
   }
 
   colisiona(siguientePunto){
       for(var i=0; i<this.escena.alineables.length; i++){
         var dist = this.distancia(this.escena.alineables[i], siguientePunto);  
-        console.log(this.escena.alineables[i]);
+        // console.log(this.trayectoria);
         if(dist < MINCOLISION){
             console.log("COLISION");
             return true;
@@ -57,10 +58,10 @@ class Proyectil extends THREE.Object3D {
   
   update () {
       if(this.velocity > 0){
-        var longitudTrayectoria = Math.sqrt(Math.pow(this.trayectoria.x, 2), Math.pow(this.trayectoria.y, 2), Math.pow(this.trayectoria.z, 2));
-        var incrementoPorcentual = clock.getDelta() * this.velocity / longitudTrayectoria;
+        var incrementoPorcentual = this.clock.getDelta() * this.velocity / this.longitudTrayectoria;
         var siguientePunto = new THREE.Vector3(this.puntoActual.x + this.trayectoria.x*incrementoPorcentual, this.puntoActual.y + this.trayectoria.y*incrementoPorcentual,
             this.puntoActual.z + this.trayectoria.z*incrementoPorcentual);
+        // console.log(this.longitudTrayectoria);
         if(!this.colisiona(siguientePunto)){
             this.position.x = siguientePunto.x;
             this.position.y = siguientePunto.y;

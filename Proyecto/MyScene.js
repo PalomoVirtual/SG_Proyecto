@@ -221,6 +221,7 @@ class MyScene extends THREE.Scene {
         if(alineados.length > 0){
           var masCercano = alineados[0];
           var puntoImpacto = masCercano.point;
+          // console.log(puntoImpacto);
           var bala = new Proyectil(thisRef, arma);
           // bala.position.z = -150;
           // bala.scale.set(0.2, 0.2, 0.2);
