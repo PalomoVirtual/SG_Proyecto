@@ -222,7 +222,9 @@ class MyScene extends THREE.Scene {
     var alineables = this.alineables;
     // var posicionBala = new THREE.Vector3(0, 5, -300);
 
-    document.addEventListener('click', function (){
+    var idIntervalo;
+
+    function disparar(){
       if(cameraControls.isLocked && balas > 0){
       
         // var look = new THREE.Vector3();
@@ -293,7 +295,17 @@ class MyScene extends THREE.Scene {
     
         }
       }
+    }
+
+    document.addEventListener('click', disparar);
+
+    document.addEventListener('mousedown', function (){
+      idIntervalo = setInterval(disparar, 100);
     });
+
+    document.addEventListener('mouseup', function(){
+      clearInterval(idIntervalo);
+    })
     document.addEventListener('keydown', this.onKeyDown);
     document.addEventListener('keyup', this.onKeyUp);
   }
