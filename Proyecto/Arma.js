@@ -34,6 +34,9 @@ class Arma extends THREE.Object3D {
   //   this.arrayBalas.splice(indice, 1);
   // }
   
+  recargar(balas){
+    return balas;
+  }
   update () {
       // if(this.hayBalas()){
       //   for(var i = 1; i<this.children.length; i++){

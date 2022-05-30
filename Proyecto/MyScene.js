@@ -37,7 +37,8 @@ var moveBackward = false;
 var moveLeft = false;
 var moveRight = false;
 var canJump = false;
-var balas = 40;
+var maxBalas = 40;
+var balas = maxBalas;
 const velocity = new THREE.Vector3();
 const direction = new THREE.Vector3();
 const clock = new THREE.Clock();
@@ -111,6 +112,12 @@ class MyScene extends THREE.Scene {
         }
         canJump = false;
         break;
+
+      case "KeyR":
+        balas = 40;
+        var cargador = document.getElementById('cargador');
+        cargador.textContent = balas + "/" + maxBalas;
+        break;
         
     }
       
@@ -161,6 +168,8 @@ class MyScene extends THREE.Scene {
     
     const controles = document.getElementById('controles');
     const juego = document.getElementById('WebGL-output');
+    var cargador = document.getElementById('cargador');
+    cargador.textContent = balas + "/" + maxBalas;
     
     controles.addEventListener('click', function () {
       controls.lock();
@@ -169,6 +178,7 @@ class MyScene extends THREE.Scene {
     this.cameraControls.addEventListener('lock', function () {
       controles.style.display = 'none';
       juego.style.display = 'block';
+      cargador.style.display = 'block';
       clock.start();
     });
     
@@ -178,6 +188,7 @@ class MyScene extends THREE.Scene {
       moveForward = false;
       moveLeft = false;
       moveRight = false;
+      cargador.style.display = 'none';
       juego.style.display = 'none';
       controles.style.display = 'block';
     });
@@ -268,14 +279,17 @@ class MyScene extends THREE.Scene {
           // bala.position.z += 2.3;
           
           arma.add(bala);
-          bala.setIndiceArma(arma.children.length-1);
+          // bala.setIndiceArma(arma.children.length-1);
           // arma.children[arma.children.length-1].rotation.y = Math.PI/8;
           // arma.children[arma.children.length-1].rotation.x = 0;
 
           thisRef.arrayBalas.push(bala);
           // console.log()
           thisRef.add(bala);
-          bala.setIndices(thisRef.arrayBalas.length-1, thisRef.children.length-1);
+          balas--;
+          var cargador = document.getElementById('cargador');
+          cargador.textContent = balas + "/" + maxBalas;
+          // bala.setIndices(thisRef.arrayBalas.length-1, thisRef.children.length-1);
     
         }
       }
