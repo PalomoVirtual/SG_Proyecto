@@ -50,6 +50,8 @@ class MyScene extends THREE.Scene {
     
     this.alineables = [];
 
+    this.hitboxes = [];
+
     this.renderer = this.createRenderer(myCanvas);
     
     this.gui = this.createGUI ();    
@@ -293,10 +295,12 @@ class MyScene extends THREE.Scene {
     var materialGround = new THREE.MeshPhongMaterial ({map: texture});
     
     var ground = new THREE.Mesh (geometryGround, materialGround);
+    var groundHitbox = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0.1);
     
     ground.position.y = -0.1;
     
     this.alineables.push(ground);
+    this.hitboxes.push(groundHitbox);
     this.add (ground);
   }
 
@@ -320,13 +324,30 @@ class MyScene extends THREE.Scene {
     geometryWall4.copy(geometryWall).rotateY(-Math.PI/2);
     
     var wall1 = new THREE.Mesh (geometryWall1, materialWall);
+    wall1.geometry.computeBoundingBox();
     this.alineables.push(wall1);
     var wall2 = new THREE.Mesh (geometryWall2, materialWall);
+    wall2.geometry.computeBoundingBox();
     this.alineables.push(wall2);
     var wall3 = new THREE.Mesh (geometryWall3, materialWall);
+    wall3.geometry.computeBoundingBox();
     this.alineables.push(wall3);
     var wall4 = new THREE.Mesh (geometryWall4, materialWall);
+    wall4.geometry.computeBoundingBox();
     this.alineables.push(wall4);
+
+    var wall1Hitbox = new THREE.Box3();
+    wall1Hitbox.copy(wall1.geometry.boundingBox);
+    this.hitboxes.push(wall1Hitbox);
+    var wall2Hitbox = new THREE.Box3();
+    wall2Hitbox.copy(wall2.geometry.boundingBox);
+    this.hitboxes.push(wall2Hitbox);
+    var wall3Hitbox = new THREE.Box3();
+    wall3Hitbox.copy(wall3.geometry.boundingBox);
+    this.hitboxes.push(wall3Hitbox);
+    var wall4Hitbox = new THREE.Box3();
+    wall4Hitbox.copy(wall4.geometry.boundingBox);
+    this.hitboxes.push(wall4Hitbox);
         
     this.add (wall1);
     this.add (wall2);
@@ -523,12 +544,19 @@ class MyScene extends THREE.Scene {
 
     }
   }
+
+  borraBala(bala){
+    this.remove(bala);
+    var indice = this.arrayBalas.indexOf(bala);
+    this.arrayBalas.splice(indice, 1);
+  }
   
 
   update () {
     if(this.cameraControls.isLocked){
       if(contador == 0){
         // console.log(this.arrayBalas);
+        // console.log(this.array)
       }
       contador++;
       if(contador >= 2000){
@@ -536,7 +564,7 @@ class MyScene extends THREE.Scene {
       }
       this.renderer.render (this, this.getCamera());
     
-      this.model.update();
+      // this.model.update();
       this.actualizaPosicion();
   
       for(var i = 0; i<this.arrayBalas.length; i++){
