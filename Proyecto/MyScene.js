@@ -3,18 +3,16 @@
 
 import * as THREE from '../libs/three.module.js'
 import { GUI } from '../libs/dat.gui.module.js'
-import { TrackballControls } from '../libs/TrackballControls.js'
-import { FirstPersonControls } from '../libs/FirstPersonControls.js'
 import { PointerLockControls } from '../libs/PointerLockControls.js'
 // import { PointerLockControl } from '../libs/PointerLockControls.js'
 
 // Clases de mi proyecto
 
-import { Grapadora } from './Grapadora.js'
 import { Personaje } from './Personaje.js'
 import { Arma } from './Arma.js'
 import { Mirilla } from './Mirilla.js'
 import { Proyectil } from './Proyectil.js'
+import { Robot } from './Robot.js'
 
  
 /// La clase fachada del modelo
@@ -70,6 +68,11 @@ class MyScene extends THREE.Scene {
     this.createBackground();
 
     this.createRaycaster();
+
+    this.robot = new Robot();
+    this.robot.scale.set(0.1, 0.1, 0.1);
+    this.robot.position.y = 156/10;
+    this.add(this.robot);
 
     this.mirilla = new Mirilla();
     this.mirilla.position.z = -1;
