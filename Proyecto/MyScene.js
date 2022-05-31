@@ -4,6 +4,7 @@
 import * as THREE from '../libs/three.module.js'
 import { GUI } from '../libs/dat.gui.module.js'
 import { PointerLockControls } from '../libs/PointerLockControls.js'
+import * as TWEEN from '../libs/tween.esm.js'
 // import { PointerLockControl } from '../libs/PointerLockControls.js'
 
 // Clases de mi proyecto
@@ -28,6 +29,7 @@ const GRAVEDAD = 980;
 const FACTORFRENADO = 10;
 const VSALTO = 200;
 const BULLETSPEED = 100;
+const RETROCESOSPEED = Math.PI/2;
 var contador = 0;
 // var velocidadMax = 800;
 var moveForward = false;
@@ -39,7 +41,12 @@ var maxBalas = 40;
 var balas = maxBalas;
 const velocity = new THREE.Vector3();
 const direction = new THREE.Vector3();
-const clock = new THREE.Clock();
+const clockJugador = new THREE.Clock();
+const clockRobot = new THREE.Clock();
+const clockArma = new THREE.Clock();
+var subiendo =  false;
+var valor = 450;
+var signo = 1
 // var alineables = [];
 
   
@@ -81,6 +88,7 @@ class MyScene extends THREE.Scene {
     this.add(new THREE.Box3Helper(hitboxRobot, 0xff0000));
     this.hitboxes.push(hitboxRobot);
     this.add(this.robot);
+
 
     this.mirilla = new Mirilla();
     this.mirilla.position.z = -1;
@@ -190,11 +198,11 @@ class MyScene extends THREE.Scene {
       controles.style.display = 'none';
       juego.style.display = 'block';
       cargador.style.display = 'block';
-      clock.start();
+      clockJugador.start();
     });
     
     this.cameraControls.addEventListener('unlock', function () {
-      clock.stop();
+      clockJugador.stop();
       moveBackward = false;
       moveForward = false;
       moveLeft = false;
@@ -267,6 +275,9 @@ class MyScene extends THREE.Scene {
           bala.position.x = camera.position.x+direccion.x*distanciaInicialBala;
           bala.position.y = camera.position.y+direccion.y*distanciaInicialBala;
           bala.position.z = camera.position.z+direccion.z*distanciaInicialBala;
+          var balaWrapper = new THREE.Object3D();
+          balaWrapper.add(bala);
+          balaWrapper.rotation.y = Math.PI/10;
           
           bala.setTrayectoria(puntoImpacto, new THREE.Vector3(bala.position.x, bala.position.y, bala.position.z))
 
@@ -291,6 +302,9 @@ class MyScene extends THREE.Scene {
           // bala.position.y += -4.3;
           // bala.position.z += 2.3;
           
+          // arma.rotation.x += (Math.PI/2);
+          subiendo = true;
+          clockArma.start();
           arma.add(bala);
           // bala.setIndiceArma(arma.children.length-1);
           // arma.children[arma.children.length-1].rotation.y = Math.PI/8;
@@ -480,9 +494,9 @@ class MyScene extends THREE.Scene {
     
     this.model = new Arma();
     this.model.scale.set(0.08, 0.08, 0.08);
+    this.model.rotation.y = Math.PI;
     this.model.position.y = -5;
     this.model.position.x = 5;
-    this.model.rotation.y = Math.PI;
     this.model.position.z = -5.80;
     this.add(this.model);
   }
@@ -503,13 +517,26 @@ class MyScene extends THREE.Scene {
   }
 
   actualizaPosicionRobot(){
-    this.robot.position.x = this.robot.position.x + 0.01;
-    this.hitboxes[this.hitboxes.length-1].translate(new THREE.Vector3(0.01, 0, 0));
+    
+  }
+
+  actualizaArma(){
+    if(clockArma.running){
+      if(subiendo && this.model.rotation.x < Math.PI/20){
+        this.model.rotation.x += RETROCESOSPEED * clockArma.getDelta(); 
+      }
+      else if(subiendo && this.model.rotation.x >= Math.PI/20){
+        subiendo = false;
+      }
+      else if(!subiendo && this.model.rotation.x > 0){
+        this.model.rotation.x -= RETROCESOSPEED * clockArma.getDelta(); 
+      }
+    }
   }
   
   actualizaPosicion(){
     if ( this.cameraControls.isLocked === true ) {
-      var delta = clock.getDelta();
+      var delta = clockJugador.getDelta();
 
       velocity.x -= velocity.x * FACTORFRENADO * delta;
       velocity.z -= velocity.z * FACTORFRENADO * delta;
@@ -608,6 +635,8 @@ class MyScene extends THREE.Scene {
 
       this.actualizaPosicionRobot();
     
+      this.actualizaArma();
+
       // this.model.update();
       this.actualizaPosicion();
   
@@ -626,5 +655,6 @@ $(function () {
   
   window.addEventListener ("resize", () => scene.onWindowResize());
   
+  clockRobot.start();
   scene.update();
 });
