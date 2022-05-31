@@ -176,7 +176,7 @@ class MyScene extends THREE.Scene {
   createCamera () {
     this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 2200);
     this.camera.position.set (0, 20, -300);
-    var look = new THREE.Vector3 (0,0,0);
+    var look = new THREE.Vector3 (0,20,0);
     this.camera.lookAt(look);
     this.add (this.camera);
     
@@ -258,7 +258,7 @@ class MyScene extends THREE.Scene {
           // console.log(puntoImpacto);
           var bala = new Proyectil(thisRef, arma);
           // bala.position.z = -150;
-          // bala.scale.set(0.2, 0.2, 0.2);
+          bala.scale.set(0.2, 0.2, 0.2);
           // bala.scale.set(1, 1, 1);
           // console.log(arma);
           // bala.position.x = puntoImpacto.x;
@@ -268,16 +268,14 @@ class MyScene extends THREE.Scene {
           // console.log(arma);
           bala.velocity = BULLETSPEED;
           var look = new THREE.Vector3;
-          var direccion = cameraControls.getDirection(look).normalize();
-          
+          // var direccion = cameraControls.getDirection(look).normalize();
+          var direccion = cameraControls.getDirection(look).applyAxisAngle(new THREE.Vector3(0, 1, 0), -Math.PI/14).normalize();
+          console.log(direccion);
           var distanciaInicialBala = Math.sqrt(Math.pow(-5, 2) + Math.pow(-4.3, 2) + Math.pow(20.3, 2));
           
           bala.position.x = camera.position.x+direccion.x*distanciaInicialBala;
           bala.position.y = camera.position.y+direccion.y*distanciaInicialBala;
           bala.position.z = camera.position.z+direccion.z*distanciaInicialBala;
-          var balaWrapper = new THREE.Object3D();
-          balaWrapper.add(bala);
-          balaWrapper.rotation.y = Math.PI/10;
           
           bala.setTrayectoria(puntoImpacto, new THREE.Vector3(bala.position.x, bala.position.y, bala.position.z))
 
