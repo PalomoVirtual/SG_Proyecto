@@ -82,7 +82,7 @@ class CabezaRobot extends THREE.Object3D {
     this.add(oreja2);
     this.add(antena1);
     this.add(antena2);
-    this.add(new THREE.Box3Helper(this.hitbox, 0x0000ff));
+    // this.add(new THREE.Box3Helper(this.hitbox, 0x0000ff));
   }
   
   getHitbox(){

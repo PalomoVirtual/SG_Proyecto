@@ -16,7 +16,7 @@ class TorsoRobot extends THREE.Object3D {
     this.hitbox.copy(geometry.boundingBox);
 
     this.add(torso);
-    this.add(new THREE.Box3Helper(this.hitbox, 0x00ff00));
+    // this.add(new THREE.Box3Helper(this.hitbox, 0x00ff00));
   }
   
   getHitbox(){

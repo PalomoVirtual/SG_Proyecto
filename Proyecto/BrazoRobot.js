@@ -60,7 +60,7 @@ class BrazoRobot extends THREE.Object3D {
     this.add(parte);
     this.add(parteExterna);
     this.add(codo);
-    this.add(new THREE.Box3Helper(this.hitboxParte, 0x0000ff));
+    // this.add(new THREE.Box3Helper(this.hitboxParte, 0x0000ff));
   }
   
   createMano(){

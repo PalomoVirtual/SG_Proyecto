@@ -70,12 +70,16 @@ class MyScene extends THREE.Scene {
     this.createRaycaster();
 
     this.robot = new Robot();
-    // this.robot.scale.set(0.1, 0.1, 0.1);
-    // this.robot.position.y = 156/10;
+    this.robot.scale.set(0.1, 0.1, 0.1);
+    this.robot.position.y = 156/10;
     // this.robot.position.y = 156;
     // this.robot.position.x = 50;
     // this.robot.recalcularHitbox();
-    this.hitboxes.push(this.robot.getHitboxes());
+    // var hitboxRobot = new THREE.Box3().setFromObject(this.robot);
+    var hitboxRobot = new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(0, this.robot.position.y-(this.robot.piernaDerecha.longitudBase+this.robot.piernaDerecha.radioPie*2 - this.robot.cabeza.getAnchura())*0.1/2, 0), new THREE.Vector3(this.robot.torso.getRadio()*0.2, (this.robot.torso.getLongitud()+this.robot.cabeza.getAnchura()+this.robot.piernaDerecha.longitudBase+this.robot.piernaDerecha.radioPie*2)*0.1, this.robot.torso.getRadio()*0.2));
+    // var hitboxRobot = this.robot.getHitbox();
+    this.add(new THREE.Box3Helper(hitboxRobot, 0xff0000));
+    this.hitboxes.push(hitboxRobot);
     this.add(this.robot);
 
     this.mirilla = new Mirilla();
@@ -497,6 +501,11 @@ class MyScene extends THREE.Scene {
 
     this.renderer.setSize (window.innerWidth, window.innerHeight);
   }
+
+  actualizaPosicionRobot(){
+    this.robot.position.x = this.robot.position.x + 0.01;
+    this.hitboxes[this.hitboxes.length-1].translate(new THREE.Vector3(0.01, 0, 0));
+  }
   
   actualizaPosicion(){
     if ( this.cameraControls.isLocked === true ) {
@@ -587,15 +596,17 @@ class MyScene extends THREE.Scene {
 
   update () {
     if(this.cameraControls.isLocked){
-      if(contador == 0){
-        // console.log(this.arrayBalas);
-        // console.log(this.array)
-      }
-      contador++;
-      if(contador >= 2000){
-        contador = 0;
-      }
+      // if(contador == 0){
+      //   // console.log(this.arrayBalas);
+      //   // console.log(this.array)
+      // }
+      // contador++;
+      // if(contador >= 2000){
+      //   contador = 0;
+      // }
       this.renderer.render (this, this.getCamera());
+
+      this.actualizaPosicionRobot();
     
       // this.model.update();
       this.actualizaPosicion();

@@ -32,7 +32,7 @@ class PiernaRobot extends THREE.Object3D {
 
     this.add(base);
     this.add(pie);
-    this.add(new THREE.Box3Helper(this.hitboxBase, 0x0000ff));
+    // this.add(new THREE.Box3Helper(this.hitboxBase, 0x0000ff));
   }
   
   getHitbox(){
