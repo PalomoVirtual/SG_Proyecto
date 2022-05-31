@@ -70,8 +70,12 @@ class MyScene extends THREE.Scene {
     this.createRaycaster();
 
     this.robot = new Robot();
-    this.robot.scale.set(0.1, 0.1, 0.1);
-    this.robot.position.y = 156/10;
+    // this.robot.scale.set(0.1, 0.1, 0.1);
+    // this.robot.position.y = 156/10;
+    // this.robot.position.y = 156;
+    // this.robot.position.x = 50;
+    // this.robot.recalcularHitbox();
+    this.hitboxes.push(this.robot.getHitboxes());
     this.add(this.robot);
 
     this.mirilla = new Mirilla();

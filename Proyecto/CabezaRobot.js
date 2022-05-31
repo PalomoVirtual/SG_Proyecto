@@ -70,6 +70,10 @@ class CabezaRobot extends THREE.Object3D {
     var antena2 = new THREE.Mesh(geometryAntena2, materialAntena);
     antena2.rotation.y = this.gradosCabeza;
 
+    geometryBase.computeBoundingBox();
+    this.hitbox = new THREE.Box3();
+    this.hitbox.copy(geometryBase.boundingBox);
+
     this.add(base);
     this.add(boca);
     this.add(ojo1);
@@ -78,6 +82,11 @@ class CabezaRobot extends THREE.Object3D {
     this.add(oreja2);
     this.add(antena1);
     this.add(antena2);
+    this.add(new THREE.Box3Helper(this.hitbox, 0x0000ff));
+  }
+  
+  getHitbox(){
+    return this.hitbox;
   }
   
   getAnchura(){

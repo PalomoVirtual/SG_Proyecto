@@ -45,9 +45,22 @@ class BrazoRobot extends THREE.Object3D {
 
     this.mano = this.createMano();
 
+    geometryParte.computeBoundingBox();
+    geometryParteExterna.computeBoundingBox();
+    geometryCodo.computeBoundingBox();
+    this.hitboxParte = new THREE.Box3();
+    this.hitboxParte.copy(geometryParte.boundingBox);
+    this.hitboxParteExterna = new THREE.Box3();
+    this.hitboxParteExterna.copy(geometryParteExterna.boundingBox);
+    this.hitboxCodo = new THREE.Box3();
+    this.hitboxCodo.copy(geometryCodo.boundingBox);
+    this.hitboxMano = this.mano.children[0].children[0].children[0].getHitbox();
+    this.hitboxParte = this.hitboxParte.union(this.hitboxParteExterna).union(this.hitboxCodo).union(this.hitboxMano);
+
     this.add(parte);
     this.add(parteExterna);
     this.add(codo);
+    this.add(new THREE.Box3Helper(this.hitboxParte, 0x0000ff));
   }
   
   createMano(){
@@ -72,6 +85,11 @@ class BrazoRobot extends THREE.Object3D {
     this.add(mano);
     return mano;
   }
+
+  getHitbox(){
+    return this.hitboxParte;
+  }
+  
   
   update () {
   }

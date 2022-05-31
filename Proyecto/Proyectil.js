@@ -65,6 +65,15 @@ class Proyectil extends THREE.Object3D {
             return true;
           }
         }
+        else{
+          for(var j=0; j<this.escena.hitboxes[i].length; j++){
+            // console.log(this.escena.hitboxes[i][j]);
+            if(this.bulletHitbox.intersectsBox(this.escena.hitboxes[i][j])){
+              console.log("COLISION jerarquico" + j);
+              return true;
+            }
+          }
+        }
       }
       return false;
   }
