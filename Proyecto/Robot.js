@@ -14,6 +14,7 @@ class Robot extends THREE.Object3D {
     this.brazoDerecho = this.createBrazo('D');
     this.piernaIzquierda = this.createPierna('I');
     this.piernaDerecha = this.createPierna('D');
+    this.hitbox = this.torso.getHitbox().union(this.cabeza.getHitbox()).union(this.brazoIzquierdo.getHitbox()).union(this.brazoDerecho.getHitbox()).union(this.piernaIzquierda.getHitbox()).union(this.piernaDerecha.getHitbox())
   }
 
   createCabeza(){
