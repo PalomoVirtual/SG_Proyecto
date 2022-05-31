@@ -268,11 +268,11 @@ class MyScene extends THREE.Scene {
           // console.log(arma);
           bala.velocity = BULLETSPEED;
           var look = new THREE.Vector3;
-          // var direccion = cameraControls.getDirection(look).normalize();
-          var direccion = cameraControls.getDirection(look).applyAxisAngle(new THREE.Vector3(0, 1, 0), -Math.PI/14).normalize();
-          console.log(direccion);
+          var vecUtil = new THREE.Vector3(cameraControls.getDirection(look).x, 0, cameraControls.getDirection(look).z);
+          vecUtil.applyAxisAngle(new THREE.Vector3(0, 1, 0), -Math.PI/2);
+          var direccion = cameraControls.getDirection(look).applyAxisAngle(new THREE.Vector3(0, 1, 0), -Math.PI/14).applyAxisAngle(new THREE.Vector3(vecUtil.x, 0, vecUtil.z).normalize(), -Math.PI/20).normalize();
           var distanciaInicialBala = Math.sqrt(Math.pow(-5, 2) + Math.pow(-4.3, 2) + Math.pow(20.3, 2));
-          
+
           bala.position.x = camera.position.x+direccion.x*distanciaInicialBala;
           bala.position.y = camera.position.y+direccion.y*distanciaInicialBala;
           bala.position.z = camera.position.z+direccion.z*distanciaInicialBala;
@@ -280,12 +280,7 @@ class MyScene extends THREE.Scene {
           bala.setTrayectoria(puntoImpacto, new THREE.Vector3(bala.position.x, bala.position.y, bala.position.z))
 
 
-          // var rotacionYRadianes = -(Math.PI)/3, rotacionXRadianes = 0;
-
-          // var nuevaX, nuevaY, nuevaZ;
-          // nuevaX = direccion.x*distanciaInicialBala;
-          // nuevaY = direccion.y*distanciaInicialBala*Math.cos(rotacionXRadianes) - direccion.z*distanciaInicialBala*Math.sin(rotacionXRadianes);
-          // nuevaZ = direccion.y*distanciaInicialBala*Math.sin(rotacionXRadianes) + direccion.z*distanciaInicialBala*Math.cos(rotacionXRadianes);
+          
           
           // nuevaX = nuevaZ*Math.sin(rotacionYRadianes) + nuevaX*Math.cos(rotacionYRadianes);
           // nuevaZ = nuevaZ*Math.cos(rotacionYRadianes) - nuevaX*Math.sin(rotacionYRadianes);
