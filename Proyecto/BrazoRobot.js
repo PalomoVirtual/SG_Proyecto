@@ -22,7 +22,6 @@ class BrazoRobot extends THREE.Object3D {
     var parte = new THREE.Mesh(geometryParte, materialParte);
     parte.rotation.z = this.gradosAbduccionAduccionHombro;
     
-    
     var geometryParteExterna = new THREE.BoxGeometry(this.anchuraParte, this.anchuraParte, this.anchuraParte);
     geometryParteExterna.scale(this.longitudParte/this.anchuraParte, 1, 1);
     geometryParteExterna.translate(this.longitudParte/2, 0, 0);
@@ -45,22 +44,9 @@ class BrazoRobot extends THREE.Object3D {
 
     this.mano = this.createMano();
 
-    geometryParte.computeBoundingBox();
-    geometryParteExterna.computeBoundingBox();
-    geometryCodo.computeBoundingBox();
-    this.hitboxParte = new THREE.Box3();
-    this.hitboxParte.copy(geometryParte.boundingBox);
-    this.hitboxParteExterna = new THREE.Box3();
-    this.hitboxParteExterna.copy(geometryParteExterna.boundingBox);
-    this.hitboxCodo = new THREE.Box3();
-    this.hitboxCodo.copy(geometryCodo.boundingBox);
-    this.hitboxMano = this.mano.children[0].children[0].children[0].getHitbox();
-    this.hitboxParte = this.hitboxParte.union(this.hitboxParteExterna).union(this.hitboxCodo).union(this.hitboxMano);
-
     this.add(parte);
     this.add(parteExterna);
     this.add(codo);
-    // this.add(new THREE.Box3Helper(this.hitboxParte, 0x0000ff));
   }
   
   createMano(){
@@ -85,10 +71,6 @@ class BrazoRobot extends THREE.Object3D {
     this.add(mano);
     return mano;
   }
-
-  getHitbox(){
-    return this.hitboxParte;
-  }
   
   deleteGeometry(){
     for(var i=1; i<this.children.length; i++){
@@ -102,9 +84,6 @@ class BrazoRobot extends THREE.Object3D {
       this.children[i].material.dispose();
     }
     this.mano.children[0].children[0].children[0].deleteMaterial();
-  }
-  
-  update () {
   }
 }
 

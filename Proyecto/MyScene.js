@@ -4,23 +4,15 @@
 import * as THREE from '../libs/three.module.js'
 import { GUI } from '../libs/dat.gui.module.js'
 import { PointerLockControls } from '../libs/PointerLockControls.js'
-import * as TWEEN from '../libs/tween.esm.js'
-// import { PointerLockControl } from '../libs/PointerLockControls.js'
 
 // Clases de mi proyecto
 
-import { Personaje } from './Personaje.js'
 import { Arma } from './Arma.js'
 import { Mirilla } from './Mirilla.js'
 import { Proyectil } from './Proyectil.js'
 import { Robot } from './Robot.js'
 
- 
-/// La clase fachada del modelo
-/**
- * Usaremos una clase derivada de la clase Scene de Three.js para llevar el control de la escena y de todo lo que ocurre en ella.
- */
-
+//Constantes útiles
 const VMIN = 0;
 const VMAX = Math.PI;
 const CHARACTERSPEED = 1400;
@@ -30,45 +22,46 @@ const FACTORFRENADO = 10;
 const VSALTO = 200;
 const BULLETSPEED = 3000;
 const RETROCESOSPEED = Math.PI/2;
-var contador = 0;
-// var velocidadMax = 800;
+
+//Variables de control de movimiento
 var moveForward = false;
 var moveBackward = false;
 var moveLeft = false;
 var moveRight = false;
 var canJump = false;
-var maxBalas = 40;
-var balas = maxBalas;
 const velocity = new THREE.Vector3();
 const direction = new THREE.Vector3();
 const clockJugador = new THREE.Clock();
-const clockRobot = new THREE.Clock();
-const clockArma = new THREE.Clock();
-const clockPartida = new THREE.Clock();
+
+//Variables de control de disparo
+var maxBalas = 40;
+var balas = maxBalas;
 var subiendo =  false;
-var valor = 450;
-var signo = 1
+const clockArma = new THREE.Clock();
+
+//Variables de control de movimiento del robot
 var direccionRobot = new THREE.Vector3(0, 0, 0);
 var tiempoUltimoCambioDireccion = 0;
+const clockRobot = new THREE.Clock();
+
+//Variables de control de partida
 var score = 0;
 var acabado = false;
-// var alineables = [];
-
+const clockPartida = new THREE.Clock();
   
+//Escena
 class MyScene extends THREE.Scene {
   constructor (myCanvas) { 
     super();
+
+    this.arrayBalas = [];
     
     this.alineables = [];
-
-    this.hitboxes = [];
 
     this.renderer = this.createRenderer(myCanvas);
     
     this.createLights ();
     
-    // this.createMirilla();
-
     this.createPersonaje();
     
     this.createGround ();
@@ -76,36 +69,19 @@ class MyScene extends THREE.Scene {
     this.createWalls();
     
     this.createBackground();
-
-    this.createRaycaster();
-
-    this.robot = new Robot();
-    this.robot.scale.set(0.1, 0.1, 0.1);
-    this.robot.position.y = 156/10;
-    // this.robot.position.y = 156;
-    // this.robot.position.x = 50;
-    // this.robot.recalcularHitbox();
-    // var hitboxRobot = new THREE.Box3().setFromObject(this.robot);
-    // var hitboxRobot = this.robot.getHitbox();
-    // var hitboxRobot = new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(0, this.robot.position.y-(this.robot.piernaDerecha.longitudBase+this.robot.piernaDerecha.radioPie*2 - this.robot.cabeza.getAnchura())*0.1/2, 0), new THREE.Vector3(this.robot.torso.getRadio()*0.2, (this.robot.torso.getLongitud()+this.robot.cabeza.getAnchura()+this.robot.piernaDerecha.longitudBase+this.robot.piernaDerecha.radioPie*2)*0.1, this.robot.torso.getRadio()*0.2));
-    // this.add(new THREE.Box3Helper(hitboxRobot, 0xff0000));
-    // this.hitboxes.push(hitboxRobot);
-    this.add(this.robot);
-    this.alineables.push(this.robot);
-
-
-    this.mirilla = new Mirilla();
-    this.mirilla.position.z = -1;
-    this.mirilla.scale.set(0.03, 0.03, 0.03);
-    this.add(this.mirilla);
     
-    this.axis = new THREE.AxesHelper (5);
-    this.add (this.axis);
+    this.createRaycaster();
+    
+    this.createRobot();
+    
+    this.createMirilla();
     
     this.createCamera ();
-    // console.log(this.children);
+
+    this.createListeners();
   }
 
+  //Event listener al pulsar teclas. Controla movimiento, salto y recarga
   onKeyDown(event){
   
     switch(event.code) {
@@ -147,6 +123,7 @@ class MyScene extends THREE.Scene {
       
   }
     
+  //Event listener al soltar teclas. Controla movimiento
   onKeyUp(event){
     
     switch(event.code){
@@ -174,10 +151,31 @@ class MyScene extends THREE.Scene {
     }
   }
 
+  //Creación de mirilla. Z = -1 para que esté en frente de la cámara
+  createMirilla(){
+    this.mirilla = new Mirilla();
+    this.mirilla.position.z = -1;
+    this.mirilla.scale.set(0.03, 0.03, 0.03);
+    this.add(this.mirilla);
+  }
+
+  //Creación de robot. El robot es un enemigo destruible con disparos
+  createRobot(){
+    this.robot = new Robot();
+    this.robot.scale.set(0.1, 0.1, 0.1);
+    this.robot.position.y = 156/10;
+    this.robot.position.x = (Math.random()*2-1)*496;
+    this.robot.position.z = (Math.random()*2-1)*496;
+    this.add(this.robot);
+    this.alineables.push(this.robot);
+  }
+
+  //Creación del raycaster. Se usará para calcular una trayectoria de bala así como para detectar colisiones
   createRaycaster(){
     this.raycaster = new THREE.Raycaster();
   }
 
+  //Creación de la cámara y de sus controles. Utilizada librería externa para el control de la cámara
   createCamera () {
     this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 2200);
     this.camera.position.set (0, 20, -300);
@@ -206,6 +204,7 @@ class MyScene extends THREE.Scene {
       controls.lock();
     });
     
+    //El ratón se bloquea y desaparace al hacer click, pasando su función a ser el control de la cámara
     this.cameraControls.addEventListener('lock', function () {
       controles.style.display = 'none';
       juego.style.display = 'block';
@@ -220,7 +219,9 @@ class MyScene extends THREE.Scene {
       clockArma.start();
     });
     
+    //El ratón se desbloquea y aparece al pulsar ESC, volviendo a su función normal
     this.cameraControls.addEventListener('unlock', function () {
+      //Mientras dure la partida
       if(!acabado){
         clockPartida.stop();
         clockRobot.stop();
@@ -236,6 +237,7 @@ class MyScene extends THREE.Scene {
         juego.style.display = 'none';
         controles.style.display = 'block';
       }
+      //Una vez acabe la partida
       else{
         var pantallaFinal = document.getElementById('pantallaFinal');
         pantallaFinal.textContent = "PUNTUACION FINAL: " + score.toString();
@@ -248,63 +250,36 @@ class MyScene extends THREE.Scene {
       }
     });
     
+    //Añado mirilla y arma a la cámara para que se muevan con la cámara
     this.add(this.cameraControls.getObject());
     this.camera.add(this.mirilla);
     this.camera.add(this.model);
-    this.arrayBalas = [];
+  }
 
-
-
-    // raycaster_crosshair.set(camera.getWorldPosition(),camera.getWorldDirection());
-	  // var intersection = raycaster_crosshair.intersectObjects(objetivos, true);
-
-	  // direccion = null;
-	  
-	  // if (intersection.length > 0)
-		//   var direccion = intersection[0].point;
-	  
-	  // return(direccion);
-
-
-
-
-
+  //Crea los listeners para disparos, recarga, movimiento y salto
+  createListeners(){
     var camera = this.camera;
     var cameraControls = this.cameraControls;
     var raycaster = this.raycaster;
     var thisRef = this;
     var arma = this.model;
     var alineables = this.alineables;
-    // var posicionBala = new THREE.Vector3(0, 5, -300);
 
     var idIntervalo;
 
     function disparar(){
       if(cameraControls.isLocked && balas > 0){
-      
-        // var look = new THREE.Vector3();
-        // look = this.cameraControls.getDirection(look);
         raycaster.setFromCamera(new THREE.Vector2(), camera);
-        // console.log(alineables);
         var alineados = raycaster.intersectObjects(alineables, true);
         
         if(alineados.length > 0){
           var masCercano = alineados[0];
           var puntoImpacto = masCercano.point;
-          // console.log(puntoImpacto);
           var bala = new Proyectil(thisRef, arma, masCercano);
-          // bala.position.z = -150;
           bala.scale.set(0.2, 0.2, 0.2);
-          // bala.scale.set(1, 1, 1);
-          // console.log(arma);
-          // bala.position.x = puntoImpacto.x;
-          // bala.position.y = puntoImpacto.y;
-          // bala.position.z = puntoImpacto.z;
-          // console.log(posicionBala);
-          // console.log(arma);
           bala.velocity = BULLETSPEED;
           
-          var look = new THREE.Vector3;
+          var look = new THREE.Vector3();
           var vecUtil = new THREE.Vector3(cameraControls.getDirection(look).x, 0, cameraControls.getDirection(look).z);
           vecUtil.applyAxisAngle(new THREE.Vector3(0, 1, 0), -Math.PI/2);
           var direccion = cameraControls.getDirection(look).applyAxisAngle(new THREE.Vector3(0, 1, 0), -Math.PI/14).applyAxisAngle(new THREE.Vector3(vecUtil.x, 0, vecUtil.z).normalize(), -Math.PI/20).normalize();
@@ -316,55 +291,35 @@ class MyScene extends THREE.Scene {
           
           bala.setTrayectoria(puntoImpacto, new THREE.Vector3(bala.position.x, bala.position.y, bala.position.z))
 
-
-          
-          
-          // nuevaX = nuevaZ*Math.sin(rotacionYRadianes) + nuevaX*Math.cos(rotacionYRadianes);
-          // nuevaZ = nuevaZ*Math.cos(rotacionYRadianes) - nuevaX*Math.sin(rotacionYRadianes);
-
-          // bala.position.x = camera.position.x + nuevaX;
-          // bala.position.y = camera.position.y + nuevaY;
-          // bala.position.z = camera.position.z + nuevaZ;
-
-          // console.log(distanciaInicialBala + " vs " + Math.sqrt(Math.pow(nuevaX, 2) + Math.pow(nuevaY, 2) + Math.pow(nuevaZ, 2)));
-          // console.log(distanciaInicialBala == Math.sqrt(Math.pow(nuevaX, 2) + Math.pow(nuevaY, 2) + Math.pow(nuevaZ, 2)))
-          // bala.position.x += -2;
-          // bala.position.y += -4.3;
-          // bala.position.z += 2.3;
-          
-          // arma.rotation.x += (Math.PI/2);
           subiendo = true;
           clockArma.start();
-          arma.add(bala);
-          // bala.setIndiceArma(arma.children.length-1);
-          // arma.children[arma.children.length-1].rotation.y = Math.PI/8;
-          // arma.children[arma.children.length-1].rotation.x = 0;
 
           thisRef.arrayBalas.push(bala);
-          // console.log()
           thisRef.add(bala);
           balas--;
           var cargador = document.getElementById('cargador');
-          cargador.textContent = balas + "/" + maxBalas;
-          // bala.setIndices(thisRef.arrayBalas.length-1, thisRef.children.length-1);
-    
+          cargador.textContent = balas + "/" + maxBalas;    
         }
       }
     }
 
+    //Modo semiautomático de disparo
     document.addEventListener('click', disparar);
 
+    //Modo automático de disparo
     document.addEventListener('mousedown', function (){
       idIntervalo = setInterval(disparar, 100);
     });
 
     document.addEventListener('mouseup', function(){
       clearInterval(idIntervalo);
-    })
+    });
+
     document.addEventListener('keydown', this.onKeyDown);
     document.addEventListener('keyup', this.onKeyUp);
   }
   
+  //Creación del suelo de la escena. No destruible con disparos
   createGround () {
     var geometryGround = new THREE.BoxGeometry (1000,0.2,1000);
     
@@ -376,17 +331,15 @@ class MyScene extends THREE.Scene {
     var materialGround = new THREE.MeshPhongMaterial ({map: texture});
     
     var ground = new THREE.Mesh (geometryGround, materialGround);
-    var groundHitbox = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0.1);
     
     ground.position.y = -0.1;
     
     this.alineables.push(ground);
-    this.hitboxes.push(groundHitbox);
     this.add (ground);
   }
 
+  //Creación de los muros de la escena. No destruibles con disparos
   createWalls(){
-    
     var texture = new THREE.TextureLoader().load('../imgs/muro1.jpg');
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
@@ -405,30 +358,13 @@ class MyScene extends THREE.Scene {
     geometryWall4.copy(geometryWall).rotateY(-Math.PI/2);
     
     var wall1 = new THREE.Mesh (geometryWall1, materialWall);
-    wall1.geometry.computeBoundingBox();
     this.alineables.push(wall1);
     var wall2 = new THREE.Mesh (geometryWall2, materialWall);
-    wall2.geometry.computeBoundingBox();
     this.alineables.push(wall2);
     var wall3 = new THREE.Mesh (geometryWall3, materialWall);
-    wall3.geometry.computeBoundingBox();
     this.alineables.push(wall3);
     var wall4 = new THREE.Mesh (geometryWall4, materialWall);
-    wall4.geometry.computeBoundingBox();
     this.alineables.push(wall4);
-
-    var wall1Hitbox = new THREE.Box3();
-    wall1Hitbox.copy(wall1.geometry.boundingBox);
-    this.hitboxes.push(wall1Hitbox);
-    var wall2Hitbox = new THREE.Box3();
-    wall2Hitbox.copy(wall2.geometry.boundingBox);
-    this.hitboxes.push(wall2Hitbox);
-    var wall3Hitbox = new THREE.Box3();
-    wall3Hitbox.copy(wall3.geometry.boundingBox);
-    this.hitboxes.push(wall3Hitbox);
-    var wall4Hitbox = new THREE.Box3();
-    wall4Hitbox.copy(wall4.geometry.boundingBox);
-    this.hitboxes.push(wall4Hitbox);
         
     this.add (wall1);
     this.add (wall2);
@@ -436,6 +372,7 @@ class MyScene extends THREE.Scene {
     this.add (wall4);
   }
   
+  //Creación del fondo estrellado. Es una esfera que engloba el escenario con la textura aplicada por la parte interior
   createBackground(){
     var geometryBackground = new THREE.SphereGeometry (1500,100,100);
     
@@ -452,27 +389,6 @@ class MyScene extends THREE.Scene {
     this.alineables.push(background);
         
     this.add (background);
-  }
-
-  createGUI () {
-    var gui = new GUI();
-    
-    this.guiControls = {
-      lightIntensity : 1,
-      axisOnOff : true
-    }
-    
-    var folder = gui.addFolder ('Luz y Ejes');
-    
-    folder.add (this.guiControls, 'lightIntensity', 0, 3, 0.1)
-    .name('Intensidad de la Luz : ')
-    .onChange ( (value) => this.setLightIntensity (value) );
-    
-    folder.add (this.guiControls, 'axisOnOff')
-    .name ('Mostrar ejes : ')
-    .onChange ( (value) => this.setAxisVisible (value) );
-    
-    return gui;
   }
 
   createLights () {
@@ -634,13 +550,6 @@ class MyScene extends THREE.Scene {
           velocity.x = 0;
         }
       }
-
-      // if ( onObject === true ) {
-        
-        //   velocity.y = Math.max( 0, velocity.y );
-        //   canJump = true;
-        
-        // }
         
       this.cameraControls.moveRight( - velocity.x * delta );
       this.cameraControls.moveForward( - velocity.z * delta );
@@ -691,31 +600,13 @@ class MyScene extends THREE.Scene {
   }
   
   muestraPantallaFinal(){
-    // const juego = document.getElementById('WebGL-output');
-    // var pantallaFinal = document.getElementById('pantallaFinal');
-    // pantallaFinal.textContent = "PUNTUACION FINAL: " + score.toString();
-    
-    // this.cargador.style.display = 'none';
-    // this.tiempoBloque.style.display = 'none';
-    // this.puntuacionBloque.style.display = 'none';
-    // juego.style.display = 'none';
-    // pantallaFinal.style.display = 'block';
-
     this.cameraControls.unlock();
   }
 
   update () {
-    // console.log(clockPartida.getElapsedTime());
     this.tiempoBloque.textContent = "Tiempo restante: " + (30-Math.round(clockPartida.getElapsedTime())).toString();
     if(this.cameraControls.isLocked){
-      // if(contador == 0){
-      //   // console.log(this.arrayBalas);
-      //   // console.log(this.array)
-      // }
-      // contador++;
-      // if(contador >= 2000){
-      //   contador = 0;
-      // }
+
       this.renderer.render (this, this.getCamera());
 
       this.actualizaPosicionRobot();
@@ -761,11 +652,14 @@ class MyScene extends THREE.Scene {
                 this.robot = new Robot();
                 this.robot.scale.set(0.1, 0.1, 0.1);
                 this.robot.position.y = 156/10;
+                this.robot.position.x = (Math.random()*2-1)*496;
+                this.robot.position.z = (Math.random()*2-1)*496;
                 this.add(this.robot);
                 this.alineables.push(this.robot);
                 direccionRobot.x = Math.random()*2-1;
                 direccionRobot.z = Math.random()*2-1;
                 direccionRobot.normalize();
+                this.robot.lookAt(this.robot.position.x + direccionRobot.x, this.robot.position.y, this.robot.position.z + direccionRobot.z);
                 clockRobot.start();
               }
             }
@@ -779,7 +673,7 @@ class MyScene extends THREE.Scene {
       }
     }
 
-    if(clockPartida.getElapsedTime() < 10){
+    if(clockPartida.getElapsedTime() < 30){
       requestAnimationFrame(() => this.update());
     }
     else{

@@ -14,15 +14,11 @@ class Robot extends THREE.Object3D {
     this.brazoDerecho = this.createBrazo('D');
     this.piernaIzquierda = this.createPierna('I');
     this.piernaDerecha = this.createPierna('D');
-    // this.hitbox = this.torso.getHitbox().union(this.cabeza.getHitbox()).union(this.brazoIzquierdo.getHitbox()).union(this.brazoDerecho.getHitbox()).union(this.piernaIzquierda.getHitbox()).union(this.piernaDerecha.getHitbox());
-    // this.hitbox = new THREE.Box3();
-    // this.add(this.hitbox);
   }
 
   createCabeza(){
     var cabeza = new CabezaRobot();
     cabeza.position.y = this.torso.getLongitud()/2 + cabeza.getAnchura()/2;
-    cabeza.hitbox.translate(0, this.torso.getLongitud()/2 + cabeza.getAnchura()/2, 0);
     this.add(cabeza);
     return cabeza;
   }
@@ -59,32 +55,6 @@ class Robot extends THREE.Object3D {
     this.add(pierna);
     return pierna;
   }
-  
-  getHitbox(){
-    return this.hitbox;
-  }
-
-  getHitboxes(){
-    var array = [];
-    // array.push(this.torso.getHitbox());
-    array.push(new THREE.Box3());
-    array.push(this.cabeza.getHitbox());
-    array.push(this.brazoIzquierdo.getHitbox());
-    array.push(this.brazoDerecho.getHitbox());
-    array.push(this.piernaIzquierda.getHitbox());
-    array.push(this.piernaDerecha.getHitbox());
-    return array;
-  }
-
-  recalcularHitbox(){
-    this.torso.recalcularHitbox();
-    this.cabeza.recalcularHitbox();
-    this.brazoIzquierdo.recalcularHitbox();
-    this.brazoDerecho.recalcularHitbox();
-    this.piernaIzquierda.recalcularHitbox();
-    this.piernaDerecha.recalcularHitbox();
-    this.hitbox = this.torso.getHitbox().union(this.cabeza.getHitbox()).union(this.brazoIzquierdo.getHitbox()).union(this.brazoDerecho.getHitbox()).union(this.piernaIzquierda.getHitbox()).union(this.piernaDerecha.getHitbox());
-  }
 
   deleteGeometry(){
     this.torso.deleteGeometry();
@@ -102,10 +72,6 @@ class Robot extends THREE.Object3D {
     this.brazoDerecho.deleteMaterial();
     this.piernaIzquierda.deleteMaterial();
     this.piernaDerecha.deleteMaterial();
-  }
-
-  update () {
-
   }
 }
 

@@ -11,16 +11,7 @@ class TorsoRobot extends THREE.Object3D {
     var material = new THREE.MeshStandardMaterial({metalness: 0.9, roughness: 0, color: 0xff0000});
     var torso = new THREE.Mesh(geometry, material);
 
-    geometry.computeBoundingBox();
-    this.hitbox = new THREE.Box3();
-    this.hitbox.copy(geometry.boundingBox);
-
     this.add(torso);
-    // this.add(new THREE.Box3Helper(this.hitbox, 0x00ff00));
-  }
-  
-  getHitbox(){
-    return this.hitbox;
   }
 
   getRadio(){
@@ -31,21 +22,12 @@ class TorsoRobot extends THREE.Object3D {
     return this.longitud;
   }
 
-  recalcularHitbox(){
-    this.torso.geometry.computeBoundingBox();
-    this.hitbox.copy(geometry.boundingBox);
-  }
-
   deleteGeometry(){
     this.children[0].geometry.dispose();
   }
   
   deleteMaterial(){
     this.children[0].material.dispose();
-  }
-  
-  update () {
-    
   }
 }
 

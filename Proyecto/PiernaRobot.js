@@ -22,31 +22,10 @@ class PiernaRobot extends THREE.Object3D {
     var pie = new THREE.Mesh(geometryPie, materialPie);
     pie.rotation.x = this.gradosPierna;
 
-    geometryBase.computeBoundingBox();
-    geometryPie.computeBoundingBox();
-    this.hitboxBase = new THREE.Box3();
-    this.hitboxBase.copy(geometryBase.boundingBox);
-    this.hitboxPie = new THREE.Box3();
-    this.hitboxPie.copy(geometryPie.boundingBox);
-    this.hitboxBase = this.hitboxBase.union(this.hitboxPie);
-
     this.add(base);
     this.add(pie);
-    // this.add(new THREE.Box3Helper(this.hitboxBase, 0x0000ff));
   }
   
-  getHitbox(){
-    return this.hitboxBase;
-  }
-
-  recalcularHitbox(){
-    this.base.geometry.computeBoundingBox();
-    this.pie.geometry.computeBoundingBox();
-    this.hitboxBase.copy(this.base.geometry.boundingBox);
-    this.hitboxPie.copy(this.pie.geometry.boundingBox);
-    this.hitboxBase = this.hitboxBase.union(this.hitboxPie);
-  }
-
   deleteGeometry(){
     this.children[0].geometry.dispose();
     this.children[1].geometry.dispose();
@@ -55,9 +34,6 @@ class PiernaRobot extends THREE.Object3D {
   deleteMaterial(){
     this.children[0].material.dispose();
     this.children[1].material.dispose();
-  }
-
-  update () {
   }
 }
 

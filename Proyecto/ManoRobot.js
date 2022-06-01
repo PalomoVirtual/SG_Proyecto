@@ -52,10 +52,6 @@ class ManoRobot extends THREE.Object3D {
     basePiston.scale.set((this.longitudExtraMano+this.radioBase)/this.radioBase, 1, 1);
     basePiston.position.x = (this.longitudExtraMano+this.radioBase)/2, 0, 0;
 
-    geometryBase.computeBoundingBox();
-    this.hitbox = new THREE.Box3();
-    this.hitbox.copy(geometryBase.boundingBox);
-
     this.add(base);
     this.add(dedo1);
     this.add(dedo2);
@@ -63,10 +59,6 @@ class ManoRobot extends THREE.Object3D {
     this.add(dedo4);
     this.add(basePiston);
     
-  }
-
-  getHitbox(){
-    return this.hitbox;
   }
   
   deleteGeometry(){
@@ -79,9 +71,6 @@ class ManoRobot extends THREE.Object3D {
     for(var i=0; i<this.children.length; i++){
       this.children[i].material.dispose();
     }
-  }
-  
-  update () {
   }
 }
 

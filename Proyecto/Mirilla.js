@@ -9,8 +9,8 @@ class Mirilla extends THREE.Object3D {
     var pointMaterial = new THREE.PointsMaterial({color: 0xff0000, size: 0.01});
 
     const points =[];
-    points.push(new THREE.Vector3(1.5, 0, 0));
     points.push(new THREE.Vector3(1, 0, 0));
+    points.push(new THREE.Vector3(0.75, 0, 0));
     points.push(new THREE.Vector3(0.5, 0, 0));
 
     const pointCoord = [];
@@ -32,9 +32,6 @@ class Mirilla extends THREE.Object3D {
     this.add(line3);
     this.add(line4);
     this.add(point);
-  }
-  
-  update () {
   }
 }
 

@@ -7,11 +7,6 @@ class Arma extends THREE.Object3D {
   constructor() {
     super();
     
-    // Se crea la parte de la interfaz que corresponde a la grapadora
-    // Se crea primero porque otros métodos usan las variables que se definen para la interfaz
-    // this.createGUI(gui,titleGui);
-    
-    // El material se usa desde varios métodos. Por eso se alamacena en un atributo
     var materialLoader = new MTLLoader();
     var objectLoader = new OBJLoader();
     materialLoader.load('../models/Proyecto/fusil/fusil.mtl',
@@ -23,27 +18,9 @@ class Arma extends THREE.Object3D {
             }, null, null);
         });
   }
-
-  // hayBalas(){
-  //     return this.children.length > 1;
-  // }
-
-  // borraBala(bala){
-  //   // this.remove(bala);
-  //   var indice = this.arrayBalas.indexOf(bala);
-  //   this.arrayBalas.splice(indice, 1);
-  // }
   
   recargar(balas){
     return balas;
-  }
-  update () {
-      // if(this.hayBalas()){
-      //   for(var i = 1; i<this.children.length; i++){
-      //       this.children[i].update();
-      //   }
-      // }
-    // No hay nada que actualizar ya que la apertura de la grapadora se ha actualizado desde la interfaz
   }
 }
 
