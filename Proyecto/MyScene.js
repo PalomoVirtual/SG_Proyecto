@@ -354,7 +354,7 @@ class MyScene extends THREE.Scene {
     texture.repeat.set(128, 4);
     texture.anisotropy =  this.renderer.capabilities.getMaxAnisotropy();
     
-    var materialWall = new THREE.MeshPhongMaterial ({map: texture, shininess: 20, color: 0xaaaaaa});
+    var materialWall = new THREE.MeshPhongMaterial ({map: texture, shininess: 0, color: 0xaaaaaa});
     
     var geometryWall = new THREE.BoxGeometry (XZLIMIT*2+8,40,1);
     geometryWall.translate(0, 12.5, 500.1);
@@ -405,8 +405,8 @@ class MyScene extends THREE.Scene {
     this.add (ambientLight);
 
     this.spotLight = new THREE.SpotLight( 0xffffff, 1.5);
-    this.spotLight.position.set( 0, 200, 0);
-    this.spotLight.angle = Math.PI/2;
+    this.spotLight.position.set( 0, 100, 0);
+    this.spotLight.angle = 7*Math.PI/10;
     this.spotLight.penumbra = 0.4;
     this.spotLight.target.position.set(0, 0, 0);
 
