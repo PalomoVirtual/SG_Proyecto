@@ -29,6 +29,8 @@ const BULLETSCALEFACTOR = 0.2;
 const ARMASCALEFACTOR = 0.08;
 const RETROCESORANGO = Math.PI/20;
 const MAXCHARACTERHEIGHT = 20;
+const MAXINTENSITYSPOTLIGHT = 1.5;
+const MAXINTENSITYFLASHLIGHT = 1;
 
 //Variables de control de movimiento
 var moveForward = false;
@@ -54,6 +56,8 @@ var tiempoUltimoCambioDireccion = 0;
 const clockRobot = new THREE.Clock();
 
 //Variables de control de partida
+var spotLightIntensity = MAXINTENSITYSPOTLIGHT;
+var linternaIntensity = 0;
 const TMAX = 30;
 var score = 0;
 var acabado = false;
@@ -148,6 +152,17 @@ class MyScene extends THREE.Scene {
         else{
           characterHeight = MAXCHARACTERHEIGHT;
           characterSpeed = MAXCHARACTERSPEED;
+        }
+        break;
+
+      case "KeyF":
+        if(spotLightIntensity == MAXINTENSITYSPOTLIGHT){
+          spotLightIntensity = 0;
+          linternaIntensity = MAXINTENSITYFLASHLIGHT;
+        }
+        else{
+          linternaIntensity = 0;
+          spotLightIntensity = MAXINTENSITYSPOTLIGHT;
         }
         break;
         
@@ -281,7 +296,28 @@ class MyScene extends THREE.Scene {
         pantallaFinal.style.display = 'block';
       }
     });
-    
+
+    var geometry = new THREE.SphereGeometry(0.1, 4, 4);
+    var material = new THREE.MeshBasicMaterial();
+    material.transparent = true;
+    material.opacity = 0;
+    this.mesh = new THREE.Mesh(geometry, material);
+    this.mesh.name = "PuntoParaLinterna";
+
+    this.linterna = new THREE.SpotLight(0xffff00, linternaIntensity);
+    this.linterna.position.set(this.camera.position.x, this.camera.position.y, this.camera.position.z);
+    this.linterna.angle = Math.PI/10;
+    this.linterna.penumbra = 0.4;
+
+    var util = new THREE.Vector3();
+    var direccion = this.cameraControls.getDirection(util).normalize();
+    this.mesh.position.set(this.camera.position.x + direccion.x, this.camera.position.y + direccion.y, this.camera.position.z + direccion.z);
+    this.add(this.mesh);
+
+    this.linterna.target = this.mesh;
+
+    this.add(this.linterna);
+
     //Añado mirilla y arma a la cámara para que se muevan con la cámara
     this.add(this.cameraControls.getObject());
     this.camera.add(this.mirilla);
@@ -428,7 +464,7 @@ class MyScene extends THREE.Scene {
     var ambientLight = new THREE.AmbientLight(0xccddee, 0.35);
     this.add (ambientLight);
 
-    this.spotLight = new THREE.SpotLight( 0xffffff, 1.5);
+    this.spotLight = new THREE.SpotLight( 0xffffff, spotLightIntensity);
     this.spotLight.position.set( 0, 100, 0);
     this.spotLight.angle = 7*Math.PI/10;
     this.spotLight.penumbra = 0.4;
@@ -598,6 +634,15 @@ class MyScene extends THREE.Scene {
     this.tiempoBloque.textContent = "Tiempo restante: " + (TMAX-Math.round(clockPartida.getElapsedTime())).toString();
     if(this.cameraControls.isLocked){
 
+      this.spotLight.intensity = spotLightIntensity;
+      this.linterna.intensity = linternaIntensity;
+
+      var util = new THREE.Vector3();
+      var direccion = this.cameraControls.getDirection(util).normalize();
+
+      this.linterna.position.set(this.camera.position.x, this.camera.position.y, this.camera.position.z);
+      this.mesh.position.set(this.camera.position.x + direccion.x, this.camera.position.y + direccion.y, this.camera.position.z + direccion.z);
+
       this.renderer.render (this, this.getCamera());
 
       this.actualizaPosicionRobot();
@@ -611,7 +656,7 @@ class MyScene extends THREE.Scene {
         if(colision){
           var borrar = true;
           //Objetos no borrables
-          for(var j=3; j<9; j++){
+          for(var j=1; j<7; j++){
             if(this.arrayBalas[i].getObjetoImpacto().object.id == this.children[j].id){
               borrar = false;
             }
@@ -624,7 +669,7 @@ class MyScene extends THREE.Scene {
                   objeto = objeto.parent;
               }
 
-              if(objeto.parent == this){
+              if(objeto.parent == this && objeto.name != "PuntoParaLinterna"){
                 score += 500;
                 this.puntuacionBloque.textContent = "Puntuacion: " + score.toString();
                 //Lo borro y lo creo de nuevo para evitar que puedan contabilizarse más de 1 vez los puntos, 
@@ -684,5 +729,4 @@ $(function () {
   clockRobot.start();
   clockPartida.stop();
   scene.update();
-  // scene.cameraControls.unlock();
 });
