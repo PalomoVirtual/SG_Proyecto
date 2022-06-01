@@ -11,7 +11,8 @@ class BrazoRobot extends THREE.Object3D {
     this.radioCodo = 11/2;
     this.gradosAbduccionAduccionHombro = 0; 
     this.gradosRotacionHombro = 0;
-    this.gradosRotacionCodo = 0;
+    this.gradosRotacionCodo = 0.8*Math.PI/2;
+    this.signo = 1;
 
     var materialParte = new THREE.MeshStandardMaterial({metalness: 0.7, roughness: 0, color: 0xB0B3B7});
 
@@ -19,8 +20,8 @@ class BrazoRobot extends THREE.Object3D {
     geometryParte.scale(this.longitudParte/this.anchuraParte, 1, 1);
     geometryParte.translate(this.longitudParte/2, 0, 0);
     geometryParte.rotateX(this.gradosRotacionHombro);
-    var parte = new THREE.Mesh(geometryParte, materialParte);
-    parte.rotation.z = this.gradosAbduccionAduccionHombro;
+    this.parte = new THREE.Mesh(geometryParte, materialParte);
+    this.parte.rotation.z = this.gradosAbduccionAduccionHombro;
     
     var geometryParteExterna = new THREE.BoxGeometry(this.anchuraParte, this.anchuraParte, this.anchuraParte);
     geometryParteExterna.scale(this.longitudParte/this.anchuraParte, 1, 1);
@@ -32,21 +33,21 @@ class BrazoRobot extends THREE.Object3D {
     geometryParteExterna.rotateY(grados);
     geometryParteExterna.translate(this.longitudParte*1.5 + this.radioCodo*2 - this.longitudParte/2, 0, 0);
     geometryParteExterna.rotateX(this.gradosRotacionHombro);
-    var parteExterna = new THREE.Mesh(geometryParteExterna, materialParte);
-    parteExterna.rotation.z = this.gradosAbduccionAduccionHombro;
+    this.parteExterna = new THREE.Mesh(geometryParteExterna, materialParte);
+    this.parteExterna.rotation.z = this.gradosAbduccionAduccionHombro;
     
     var geometryCodo = new THREE.SphereGeometry(this.radioCodo, 50, 50);
     geometryCodo.translate(this.longitudParte+this.radioCodo, 0, 0);
     geometryParte.rotateX(this.gradosRotacionHombro);
     var materialCodo = new THREE.MeshStandardMaterial({metalness: 0.7, roughness: 0, color: 0xC61616});
-    var codo = new THREE.Mesh(geometryCodo, materialCodo);
-    codo.rotation.z = this.gradosAbduccionAduccionHombro;
+    this.codo = new THREE.Mesh(geometryCodo, materialCodo);
+    this.codo.rotation.z = this.gradosAbduccionAduccionHombro;
 
     this.mano = this.createMano();
 
-    this.add(parte);
-    this.add(parteExterna);
-    this.add(codo);
+    this.add(this.parte);
+    this.add(this.parteExterna);
+    this.add(this.codo);
   }
   
   createMano(){
@@ -70,6 +71,30 @@ class BrazoRobot extends THREE.Object3D {
     
     this.add(mano);
     return mano;
+  }
+
+  modificaAnguloAbduccionAduccion(incremento){
+    this.gradosAbduccionAduccionHombro += incremento*this.signo;
+    this.parte.rotation.z = this.gradosAbduccionAduccionHombro;
+    this.parteExterna.rotation.z = this.gradosAbduccionAduccionHombro;
+    this.codo.rotation.z = this.gradosAbduccionAduccionHombro;
+    this.mano.rotation.z = this.gradosAbduccionAduccionHombro;
+    if(this.gradosAbduccionAduccionHombro > Math.PI/4){
+      this.gradosAbduccionAduccionHombro = Math.PI/4;
+      this.parte.rotation.z = this.gradosAbduccionAduccionHombro;
+      this.parteExterna.rotation.z = this.gradosAbduccionAduccionHombro;
+      this.codo.rotation.z = this.gradosAbduccionAduccionHombro;
+      this.mano.rotation.z = this.gradosAbduccionAduccionHombro;
+      this.signo = this.signo * (-1);
+    }
+    else if(this.gradosAbduccionAduccionHombro < -Math.PI/4){
+      this.gradosAbduccionAduccionHombro = -Math.PI/4;
+      this.parte.rotation.z = this.gradosAbduccionAduccionHombro;
+      this.parteExterna.rotation.z = this.gradosAbduccionAduccionHombro;
+      this.codo.rotation.z = this.gradosAbduccionAduccionHombro;
+      this.mano.rotation.z = this.gradosAbduccionAduccionHombro;
+      this.signo = this.signo * (-1);
+    }
   }
   
   deleteGeometry(){
