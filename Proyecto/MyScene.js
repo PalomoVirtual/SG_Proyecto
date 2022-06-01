@@ -402,14 +402,13 @@ class MyScene extends THREE.Scene {
   //Creación de las luces de la escena
   createLights () {
     var ambientLight = new THREE.AmbientLight(0xccddee, 0.35);
-    // var ambientLight = new THREE.AmbientLight(0xffffff, 1);
     this.add (ambientLight);
-    
-    this.spotLight = new THREE.SpotLight( 0xffffff, 1 );
-    this.spotLight.position.set( 0, 200, 300);
-    this.spotLight.angle = 2*Math.PI/5;
+
+    this.spotLight = new THREE.SpotLight( 0xffffff, 1.5);
+    this.spotLight.position.set( 0, 200, 0);
+    this.spotLight.angle = Math.PI/2;
     this.spotLight.penumbra = 0.4;
-    this.spotLight.target.position.set(0, 5, -150);
+    this.spotLight.target.position.set(0, 0, 0);
 
     this.add (this.spotLight);
     this.add (this.spotLight.target);
