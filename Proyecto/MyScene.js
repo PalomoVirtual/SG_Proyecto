@@ -28,7 +28,7 @@ const CERO = 0.01;
 const GRAVEDAD = 980;
 const FACTORFRENADO = 10;
 const VSALTO = 200;
-const BULLETSPEED = 100;
+const BULLETSPEED = 3000;
 const RETROCESOSPEED = Math.PI/2;
 var contador = 0;
 // var velocidadMax = 800;
@@ -83,11 +83,12 @@ class MyScene extends THREE.Scene {
     // this.robot.position.x = 50;
     // this.robot.recalcularHitbox();
     // var hitboxRobot = new THREE.Box3().setFromObject(this.robot);
-    var hitboxRobot = new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(0, this.robot.position.y-(this.robot.piernaDerecha.longitudBase+this.robot.piernaDerecha.radioPie*2 - this.robot.cabeza.getAnchura())*0.1/2, 0), new THREE.Vector3(this.robot.torso.getRadio()*0.2, (this.robot.torso.getLongitud()+this.robot.cabeza.getAnchura()+this.robot.piernaDerecha.longitudBase+this.robot.piernaDerecha.radioPie*2)*0.1, this.robot.torso.getRadio()*0.2));
     // var hitboxRobot = this.robot.getHitbox();
-    this.add(new THREE.Box3Helper(hitboxRobot, 0xff0000));
-    this.hitboxes.push(hitboxRobot);
+    // var hitboxRobot = new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(0, this.robot.position.y-(this.robot.piernaDerecha.longitudBase+this.robot.piernaDerecha.radioPie*2 - this.robot.cabeza.getAnchura())*0.1/2, 0), new THREE.Vector3(this.robot.torso.getRadio()*0.2, (this.robot.torso.getLongitud()+this.robot.cabeza.getAnchura()+this.robot.piernaDerecha.longitudBase+this.robot.piernaDerecha.radioPie*2)*0.1, this.robot.torso.getRadio()*0.2));
+    // this.add(new THREE.Box3Helper(hitboxRobot, 0xff0000));
+    // this.hitboxes.push(hitboxRobot);
     this.add(this.robot);
+    this.alineables.push(this.robot);
 
 
     this.mirilla = new Mirilla();
@@ -99,6 +100,7 @@ class MyScene extends THREE.Scene {
     this.add (this.axis);
     
     this.createCamera ();
+    // console.log(this.children);
   }
 
   onKeyDown(event){
@@ -256,7 +258,7 @@ class MyScene extends THREE.Scene {
           var masCercano = alineados[0];
           var puntoImpacto = masCercano.point;
           // console.log(puntoImpacto);
-          var bala = new Proyectil(thisRef, arma);
+          var bala = new Proyectil(thisRef, arma, masCercano);
           // bala.position.z = -150;
           bala.scale.set(0.2, 0.2, 0.2);
           // bala.scale.set(1, 1, 1);
@@ -267,6 +269,7 @@ class MyScene extends THREE.Scene {
           // console.log(posicionBala);
           // console.log(arma);
           bala.velocity = BULLETSPEED;
+          
           var look = new THREE.Vector3;
           var vecUtil = new THREE.Vector3(cameraControls.getDirection(look).x, 0, cameraControls.getDirection(look).z);
           vecUtil.applyAxisAngle(new THREE.Vector3(0, 1, 0), -Math.PI/2);
@@ -447,8 +450,6 @@ class MyScene extends THREE.Scene {
     this.spotLight.angle = 2*Math.PI/5;
     this.spotLight.penumbra = 0.4;
     this.spotLight.target.position.set(0, 5, -150);
-    var spotLightHelper = new THREE.SpotLightHelper(this.spotLight);
-    this.add(spotLightHelper);
 
     this.add (this.spotLight);
     this.add (this.spotLight.target);
@@ -510,7 +511,10 @@ class MyScene extends THREE.Scene {
   }
 
   actualizaPosicionRobot(){
-    
+    if(clockRobot.running){
+
+    }
+
   }
 
   actualizaArma(){
@@ -634,7 +638,31 @@ class MyScene extends THREE.Scene {
       this.actualizaPosicion();
   
       for(var i = 0; i<this.arrayBalas.length; i++){
-        this.arrayBalas[i].update();
+        var colision = this.arrayBalas[i].update();
+        if(colision){
+          var borrar = true;
+          for(var j=3; j<9; j++){
+            if(this.arrayBalas[i].getObjetoImpacto().object.id == this.children[j].id){
+              borrar = false;
+            }
+          }
+          if(borrar){
+            var objeto = this.arrayBalas[i].getObjetoImpacto().object;
+            while(objeto.parent != this){
+              objeto = objeto.parent;
+            }
+            this.getObjectById(objeto.id).deleteGeometry();
+            this.getObjectById(objeto.id).deleteMaterial();
+            // objeto.geometry.dispose();
+            // objeto.material.dispose();
+            this.remove(objeto);
+          }
+
+          this.arrayBalas[i].destruir();
+          // if(this.arrayBalas[i].objetoImpacto.id != this.ground){
+
+          // }
+        }
       }
     }
 

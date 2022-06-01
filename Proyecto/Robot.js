@@ -86,6 +86,24 @@ class Robot extends THREE.Object3D {
     this.hitbox = this.torso.getHitbox().union(this.cabeza.getHitbox()).union(this.brazoIzquierdo.getHitbox()).union(this.brazoDerecho.getHitbox()).union(this.piernaIzquierda.getHitbox()).union(this.piernaDerecha.getHitbox());
   }
 
+  deleteGeometry(){
+    this.torso.deleteGeometry();
+    this.cabeza.deleteGeometry();
+    this.brazoIzquierdo.deleteGeometry();
+    this.brazoDerecho.deleteGeometry();
+    this.piernaIzquierda.deleteGeometry();
+    this.piernaDerecha.deleteGeometry();
+  }
+  
+  deleteMaterial(){
+    this.torso.deleteMaterial();
+    this.cabeza.deleteMaterial();
+    this.brazoIzquierdo.deleteMaterial();
+    this.brazoDerecho.deleteMaterial();
+    this.piernaIzquierda.deleteMaterial();
+    this.piernaDerecha.deleteMaterial();
+  }
+
   update () {
 
   }

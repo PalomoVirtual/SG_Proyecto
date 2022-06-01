@@ -47,6 +47,16 @@ class PiernaRobot extends THREE.Object3D {
     this.hitboxBase = this.hitboxBase.union(this.hitboxPie);
   }
 
+  deleteGeometry(){
+    this.children[0].geometry.dispose();
+    this.children[1].geometry.dispose();
+  }
+  
+  deleteMaterial(){
+    this.children[0].material.dispose();
+    this.children[1].material.dispose();
+  }
+
   update () {
   }
 }

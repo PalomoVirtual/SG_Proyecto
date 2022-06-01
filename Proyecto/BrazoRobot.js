@@ -90,6 +90,19 @@ class BrazoRobot extends THREE.Object3D {
     return this.hitboxParte;
   }
   
+  deleteGeometry(){
+    for(var i=1; i<this.children.length; i++){
+      this.children[i].geometry.dispose();
+    }
+    this.mano.children[0].children[0].children[0].deleteGeometry();
+  }
+  
+  deleteMaterial(){
+    for(var i=1; i<this.children.length; i++){
+      this.children[i].material.dispose();
+    }
+    this.mano.children[0].children[0].children[0].deleteMaterial();
+  }
   
   update () {
   }

@@ -92,6 +92,18 @@ class CabezaRobot extends THREE.Object3D {
   getAnchura(){
       return this.anchuraCabeza;
   }
+
+  deleteGeometry(){
+    for(var i=0; i<this.children.length; i++){
+      this.children[i].geometry.dispose();
+    }
+  }
+  
+  deleteMaterial(){
+    for(var i=0; i<this.children.length; i++){
+      this.children[i].material.dispose();
+    }
+  }
   
   update () {
   }

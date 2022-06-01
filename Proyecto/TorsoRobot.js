@@ -35,6 +35,14 @@ class TorsoRobot extends THREE.Object3D {
     this.torso.geometry.computeBoundingBox();
     this.hitbox.copy(geometry.boundingBox);
   }
+
+  deleteGeometry(){
+    this.children[0].geometry.dispose();
+  }
+  
+  deleteMaterial(){
+    this.children[0].material.dispose();
+  }
   
   update () {
     
