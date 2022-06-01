@@ -15,12 +15,20 @@ import { Robot } from './Robot.js'
 const VMIN = 0;
 const VMAX = Math.PI;
 const CHARACTERSPEED = 1400;
+const CHARACTERHEIGHT = 20;
 const CERO = 0.01;
 const GRAVEDAD = 980;
 const FACTORFRENADO = 10;
 const VSALTO = 200;
 const BULLETSPEED = 3000;
 const RETROCESOSPEED = Math.PI/2;
+const MIRILLASCALEFACTOR = 0.03;
+const MIRILLAOFFSET = -1;
+const ROBOTSCALEFACTOR = 0.1;
+const XZLIMIT = 496;
+const BULLETSCALEFACTOR = 0.2;
+const ARMASCALEFACTOR = 0.08;
+const RETROCESORANGO = Math.PI/20;
 
 //Variables de control de movimiento
 var moveForward = false;
@@ -33,8 +41,8 @@ const direction = new THREE.Vector3();
 const clockJugador = new THREE.Clock();
 
 //Variables de control de disparo
-var maxBalas = 40;
-var balas = maxBalas;
+const MAXBALAS = 40;
+var balas = MAXBALAS;
 var subiendo =  false;
 const clockArma = new THREE.Clock();
 
@@ -44,6 +52,7 @@ var tiempoUltimoCambioDireccion = 0;
 const clockRobot = new THREE.Clock();
 
 //Variables de control de partida
+const TMAX = 30;
 var score = 0;
 var acabado = false;
 const clockPartida = new THREE.Clock();
@@ -113,9 +122,9 @@ class MyScene extends THREE.Scene {
         break;
 
       case "KeyR":
-        balas = 40;
+        balas = MAXBALAS;
         var cargador = document.getElementById('cargador');
-        cargador.textContent = balas + "/" + maxBalas;
+        cargador.textContent = balas + "/" + MAXBALAS;
         break;
         
     }
@@ -153,18 +162,18 @@ class MyScene extends THREE.Scene {
   //Creación de mirilla. Z = -1 para que esté en frente de la cámara
   createMirilla(){
     this.mirilla = new Mirilla();
-    this.mirilla.position.z = -1;
-    this.mirilla.scale.set(0.03, 0.03, 0.03);
+    this.mirilla.position.z = MIRILLAOFFSET;
+    this.mirilla.scale.set(MIRILLASCALEFACTOR, MIRILLASCALEFACTOR, MIRILLASCALEFACTOR);
     this.add(this.mirilla);
   }
 
   //Creación de robot. El robot es un enemigo destruible con disparos
   createRobot(){
     this.robot = new Robot();
-    this.robot.scale.set(0.1, 0.1, 0.1);
-    this.robot.position.y = 156/10;
-    this.robot.position.x = (Math.random()*2-1)*496;
-    this.robot.position.z = (Math.random()*2-1)*496;
+    this.robot.scale.set(ROBOTSCALEFACTOR, ROBOTSCALEFACTOR, ROBOTSCALEFACTOR);
+    this.robot.position.y = (this.robot.torso.getLongitud()/2 + this.robot.piernaDerecha.longitudBase + this.robot.piernaDerecha.radioPie * 2) * ROBOTSCALEFACTOR;
+    this.robot.position.x = (Math.random()*2-1)*XZLIMIT;
+    this.robot.position.z = (Math.random()*2-1)*XZLIMIT;
     this.add(this.robot);
     this.alineables.push(this.robot);
   }
@@ -177,8 +186,8 @@ class MyScene extends THREE.Scene {
   //Creación de la cámara y de sus controles. Utilizada librería externa para el control de la cámara
   createCamera () {
     this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 2200);
-    this.camera.position.set (0, 20, -300);
-    var look = new THREE.Vector3 (0,20,0);
+    this.camera.position.set (0, CHARACTERHEIGHT, -300);
+    var look = new THREE.Vector3 (0, CHARACTERHEIGHT, 0);
     this.camera.lookAt(look);
     this.add (this.camera);
     
@@ -191,9 +200,9 @@ class MyScene extends THREE.Scene {
     const controles = document.getElementById('controles');
     const juego = document.getElementById('WebGL-output');
     var cargador = document.getElementById('cargador');
-    cargador.textContent = balas + "/" + maxBalas;
+    cargador.textContent = balas + "/" + MAXBALAS;
     this.tiempoBloque = document.getElementById('tiempo');
-    this.tiempoBloque.textContent = "Tiempo restante: 30";
+    this.tiempoBloque.textContent = "Tiempo restante: " + TMAX.toString();
     this.puntuacionBloque = document.getElementById('puntuacion');
     this.puntuacionBloque.textContent = "Puntuación: 0";
     var tiempoBloque = this.tiempoBloque;
@@ -275,7 +284,7 @@ class MyScene extends THREE.Scene {
           var masCercano = alineados[0];
           var puntoImpacto = masCercano.point;
           var bala = new Proyectil(thisRef, arma, masCercano);
-          bala.scale.set(0.2, 0.2, 0.2);
+          bala.scale.set(BULLETSCALEFACTOR, BULLETSCALEFACTOR, BULLETSCALEFACTOR);
           bala.velocity = BULLETSPEED;
           
           var look = new THREE.Vector3();
@@ -297,7 +306,7 @@ class MyScene extends THREE.Scene {
           thisRef.add(bala);
           balas--;
           var cargador = document.getElementById('cargador');
-          cargador.textContent = balas + "/" + maxBalas;    
+          cargador.textContent = balas + "/" + MAXBALAS;    
         }
       }
     }
@@ -320,7 +329,7 @@ class MyScene extends THREE.Scene {
   
   //Creación del suelo de la escena. No destruible con disparos
   createGround () {
-    var geometryGround = new THREE.BoxGeometry (1000,0.2,1000);
+    var geometryGround = new THREE.BoxGeometry (XZLIMIT*2+8,0.2,XZLIMIT*2+8);
     
     var texture = new THREE.TextureLoader().load('../imgs/suelo3.jpg');
     texture.wrapS = THREE.RepeatWrapping;
@@ -347,7 +356,7 @@ class MyScene extends THREE.Scene {
     
     var materialWall = new THREE.MeshPhongMaterial ({map: texture, shininess: 20, color: 0xaaaaaa});
     
-    var geometryWall = new THREE.BoxGeometry (1000,40,1);
+    var geometryWall = new THREE.BoxGeometry (XZLIMIT*2+8,40,1);
     geometryWall.translate(0, 12.5, 500.1);
     
     var geometryWall1 = new THREE.BoxGeometry(), geometryWall2 = new THREE.BoxGeometry(), geometryWall3 = new THREE.BoxGeometry(), geometryWall4 = new THREE.BoxGeometry();
@@ -373,7 +382,7 @@ class MyScene extends THREE.Scene {
   
   //Creación del fondo estrellado. Es una esfera que engloba el escenario con la textura aplicada por la parte interior
   createBackground(){
-    var geometryBackground = new THREE.SphereGeometry (1500,100,100);
+    var geometryBackground = new THREE.SphereGeometry (XZLIMIT*2+508,100,100);
     
     var texture = new THREE.TextureLoader().load('../imgs/fondo3.jpg');
     texture.wrapS = THREE.RepeatWrapping;
@@ -392,8 +401,8 @@ class MyScene extends THREE.Scene {
 
   //Creación de las luces de la escena
   createLights () {
-    // var ambientLight = new THREE.AmbientLight(0xccddee, 0.35);
-    var ambientLight = new THREE.AmbientLight(0xffffff, 1);
+    var ambientLight = new THREE.AmbientLight(0xccddee, 0.35);
+    // var ambientLight = new THREE.AmbientLight(0xffffff, 1);
     this.add (ambientLight);
     
     this.spotLight = new THREE.SpotLight( 0xffffff, 1 );
@@ -422,7 +431,7 @@ class MyScene extends THREE.Scene {
   //Creación del arma que representa el jugador en primera persona de la escena
   createPersonaje(){    
     this.arma = new Arma();
-    this.arma.scale.set(0.08, 0.08, 0.08);
+    this.arma.scale.set(ARMASCALEFACTOR, ARMASCALEFACTOR, ARMASCALEFACTOR);
     this.arma.rotation.y = Math.PI;
     this.arma.position.y = -5;
     this.arma.position.x = 5;
@@ -460,22 +469,22 @@ class MyScene extends THREE.Scene {
 
       this.robot.position.x += direccionRobot.x * CHARACTERSPEED/10*delta;
       this.robot.position.z += direccionRobot.z * CHARACTERSPEED/10*delta;
-      if(this.robot.position.x > 496 || this.robot.position.x < -496){
+      if(this.robot.position.x > XZLIMIT || this.robot.position.x < -XZLIMIT){
         if(this.robot.position.x > 0){
-          this.robot.position.x = 496;
+          this.robot.position.x = XZLIMIT;
         }
         else{
-          this.robot.position.x = -496;
+          this.robot.position.x = -XZLIMIT;
         }
         direccionRobot.x = direccionRobot.x*(-1);
         this.robot.lookAt(this.robot.position.x + direccionRobot.x, this.robot.position.y, this.robot.position.z + direccionRobot.z);
       }
-      if(this.robot.position.z > 496 || this.robot.position.z < -496){
+      if(this.robot.position.z > XZLIMIT || this.robot.position.z < -XZLIMIT){
         if(this.robot.position.z > 0){
-          this.robot.position.z = 496;
+          this.robot.position.z = XZLIMIT;
         }
         else{
-          this.robot.position.z = -496;
+          this.robot.position.z = -XZLIMIT;
         }
         direccionRobot.z = direccionRobot.z*(-1);
         this.robot.lookAt(this.robot.position.x + direccionRobot.x, this.robot.position.y, this.robot.position.z + direccionRobot.z);
@@ -486,10 +495,10 @@ class MyScene extends THREE.Scene {
 
   actualizaArma(){
     if(clockArma.running){
-      if(subiendo && this.arma.rotation.x < Math.PI/20){
+      if(subiendo && this.arma.rotation.x < RETROCESORANGO){
         this.arma.rotation.x += RETROCESOSPEED * clockArma.getDelta(); 
       }
-      else if(subiendo && this.arma.rotation.x >= Math.PI/20){
+      else if(subiendo && this.arma.rotation.x >= RETROCESORANGO){
         subiendo = false;
       }
       else if(!subiendo && this.arma.rotation.x > 0){
@@ -536,18 +545,18 @@ class MyScene extends THREE.Scene {
       this.cameraControls.moveForward( - velocity.z * delta );
       this.cameraControls.getObject().position.y += ( velocity.y * delta );
       
-      if(this.cameraControls.getObject().position.y < 20){
+      if(this.cameraControls.getObject().position.y < CHARACTERHEIGHT){
         velocity.y = 0;
-        this.cameraControls.getObject().position.y = 20;
+        this.cameraControls.getObject().position.y = CHARACTERHEIGHT;
         canJump = true;
       }
-      if(Math.abs(this.cameraControls.getObject().position.x) > 496){
+      if(Math.abs(this.cameraControls.getObject().position.x) > XZLIMIT){
         var signo = this.cameraControls.getObject().position.x / Math.abs(this.cameraControls.getObject().position.x);
-        this.cameraControls.getObject().position.x = 496 * signo;
+        this.cameraControls.getObject().position.x = XZLIMIT * signo;
       }
-      if(Math.abs(this.cameraControls.getObject().position.z) > 496){
+      if(Math.abs(this.cameraControls.getObject().position.z) > XZLIMIT){
         var signo = this.cameraControls.getObject().position.z / Math.abs(this.cameraControls.getObject().position.z);
-        this.cameraControls.getObject().position.z = 496 * signo;
+        this.cameraControls.getObject().position.z = XZLIMIT * signo;
       }
     }
   }
@@ -563,7 +572,7 @@ class MyScene extends THREE.Scene {
   }
 
   update () {
-    this.tiempoBloque.textContent = "Tiempo restante: " + (30-Math.round(clockPartida.getElapsedTime())).toString();
+    this.tiempoBloque.textContent = "Tiempo restante: " + (TMAX-Math.round(clockPartida.getElapsedTime())).toString();
     if(this.cameraControls.isLocked){
 
       this.renderer.render (this, this.getCamera());
@@ -611,8 +620,8 @@ class MyScene extends THREE.Scene {
                 this.robot = new Robot();
                 this.robot.scale.set(0.1, 0.1, 0.1);
                 this.robot.position.y = 156/10;
-                this.robot.position.x = (Math.random()*2-1)*496;
-                this.robot.position.z = (Math.random()*2-1)*496;
+                this.robot.position.x = (Math.random()*2-1)*XZLIMIT;
+                this.robot.position.z = (Math.random()*2-1)*XZLIMIT;
                 this.add(this.robot);
                 this.alineables.push(this.robot);
                 direccionRobot.x = Math.random()*2-1;
@@ -629,7 +638,7 @@ class MyScene extends THREE.Scene {
       }
     }
 
-    if(clockPartida.getElapsedTime() < 30){
+    if(clockPartida.getElapsedTime() < TMAX){
       requestAnimationFrame(() => this.update());
     }
     else{
