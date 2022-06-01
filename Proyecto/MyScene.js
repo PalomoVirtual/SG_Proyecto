@@ -47,6 +47,8 @@ const clockArma = new THREE.Clock();
 var subiendo =  false;
 var valor = 450;
 var signo = 1
+var direccionRobot = new THREE.Vector3(0, 0, 0);
+var tiempoUltimoCambioDireccion = 0;
 // var alineables = [];
 
   
@@ -442,7 +444,8 @@ class MyScene extends THREE.Scene {
   }
 
   createLights () {
-    var ambientLight = new THREE.AmbientLight(0xccddee, 0.35);
+    // var ambientLight = new THREE.AmbientLight(0xccddee, 0.35);
+    var ambientLight = new THREE.AmbientLight(0xffffff, 1);
     this.add (ambientLight);
     
     this.spotLight = new THREE.SpotLight( 0xffffff, this.guiControls.lightIntensity );
@@ -511,10 +514,44 @@ class MyScene extends THREE.Scene {
   }
 
   actualizaPosicionRobot(){
+    // debugger;
     if(clockRobot.running){
+      var delta = clockRobot.getDelta();
+      // console.log(clockRobot.getElapsedTime());
+      var tiempo = Math.floor(clockRobot.getElapsedTime());
+      // console.log(tiempo);
+      // console.log(tiempoUltimoCambioDireccion);
+      if(tiempo-tiempoUltimoCambioDireccion > 2){
+        tiempoUltimoCambioDireccion = tiempo;
+        direccionRobot.x = Math.random()*1/direccionRobot.x;
+        direccionRobot.z = Math.random()*1/direccionRobot.z;
+        direccionRobot.normalize();
+        this.robot.lookAt(this.robot.position.x + direccionRobot.x, this.robot.position.y, this.robot.position.z + direccionRobot.z);
+      }
+      this.robot.position.x += direccionRobot.x * CHARACTERSPEED/10*delta;
+      this.robot.position.z += direccionRobot.z * CHARACTERSPEED/10*delta;
+      if(this.robot.position.x > 496 || this.robot.position.x < -496){
+        if(this.robot.position.x > 0){
+          this.robot.position.x = 496;
+        }
+        else{
+          this.robot.position.x = -496;
+        }
+        direccionRobot.x = direccionRobot.x*(-1);
+        this.robot.lookAt(this.robot.position.x + direccionRobot.x, this.robot.position.y, this.robot.position.z + direccionRobot.z);
+      }
+      if(this.robot.position.z > 496 || this.robot.position.z < -496){
+        if(this.robot.position.z > 0){
+          this.robot.position.z = 496;
+        }
+        else{
+          this.robot.position.z = -496;
+        }
+        direccionRobot.z = direccionRobot.z*(-1);
+        this.robot.lookAt(this.robot.position.x + direccionRobot.x, this.robot.position.y, this.robot.position.z + direccionRobot.z);
+      }
 
     }
-
   }
 
   actualizaArma(){
@@ -527,6 +564,10 @@ class MyScene extends THREE.Scene {
       }
       else if(!subiendo && this.model.rotation.x > 0){
         this.model.rotation.x -= RETROCESOSPEED * clockArma.getDelta(); 
+      }
+      else if(!subiendo && this.model.rotation.x <= 0){
+        this.model.rotation.x = 0;
+        clockArma.stop();
       }
     }
   }
@@ -653,6 +694,13 @@ class MyScene extends THREE.Scene {
             }
             this.getObjectById(objeto.id).deleteGeometry();
             this.getObjectById(objeto.id).deleteMaterial();
+            // var id = objeto.id;
+            for(var j=0; j<this.alineables.length; j++){
+              // console.log(this.alineables[j]);
+              if(objeto.id == this.alineables[j].id){
+                this.alineables.splice(j, 1);
+              }
+            }
             // objeto.geometry.dispose();
             // objeto.material.dispose();
             this.remove(objeto);
@@ -676,6 +724,10 @@ $(function () {
   
   window.addEventListener ("resize", () => scene.onWindowResize());
   
+  direccionRobot.x = Math.random();
+  direccionRobot.z = Math.random();
+  direccionRobot.normalize();
+  scene.robot.lookAt(scene.robot.position.x + direccionRobot.x, scene.robot.position.y, scene.robot.position.z + direccionRobot.z);
   clockRobot.start();
   scene.update();
 });

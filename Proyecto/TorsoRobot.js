@@ -8,7 +8,7 @@ class TorsoRobot extends THREE.Object3D {
     this.radio = this.longitud * 2.5/6;
 
     var geometry = new THREE.CylinderGeometry(this.radio, this.radio, this.longitud, 50);
-    var material = new THREE.MeshStandardMaterial({metalness: 0.7, roughness: 0, color: 0xff0000});
+    var material = new THREE.MeshStandardMaterial({metalness: 0.9, roughness: 0, color: 0xff0000});
     var torso = new THREE.Mesh(geometry, material);
 
     geometry.computeBoundingBox();
