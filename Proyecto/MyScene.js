@@ -53,7 +53,7 @@ const clockArma = new THREE.Clock();
 //Variables de control de movimiento del robot
 var direccionRobot = new THREE.Vector3(0, 0, 0);
 var tiempoUltimoCambioDireccion = 0;
-const VELANIMACIONPIERNAS = Math.PI;
+const VELANIMACIONROBOT = Math.PI;
 const clockRobot = new THREE.Clock();
 
 //Variables de control de partida
@@ -519,11 +519,11 @@ class MyScene extends THREE.Scene {
       var delta = clockRobot.getDelta();
       var tiempo = Math.floor(clockRobot.getElapsedTime());
 
-      this.robot.piernaIzquierda.modificaAnguloPierna(delta*VELANIMACIONPIERNAS);
-      this.robot.piernaDerecha.modificaAnguloPierna(-delta*VELANIMACIONPIERNAS);
+      this.robot.piernaIzquierda.modificaAnguloPierna(delta*VELANIMACIONROBOT);
+      this.robot.piernaDerecha.modificaAnguloPierna(-delta*VELANIMACIONROBOT);
       
-      this.robot.brazoIzquierdo.modificaAnguloAbduccionAduccion(delta*VELANIMACIONPIERNAS);
-      this.robot.brazoDerecho.modificaAnguloAbduccionAduccion(-delta*VELANIMACIONPIERNAS);
+      this.robot.brazoIzquierdo.modificaAnguloAbduccionAduccion(delta*VELANIMACIONROBOT);
+      this.robot.brazoDerecho.modificaAnguloAbduccionAduccion(-delta*VELANIMACIONROBOT);
       
       if(tiempo-tiempoUltimoCambioDireccion > 1){
         tiempoUltimoCambioDireccion = tiempo;
