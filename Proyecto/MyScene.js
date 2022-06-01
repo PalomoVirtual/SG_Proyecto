@@ -304,7 +304,7 @@ class MyScene extends THREE.Scene {
     this.mesh = new THREE.Mesh(geometry, material);
     this.mesh.name = "PuntoParaLinterna";
 
-    this.linterna = new THREE.SpotLight(0xffff00, linternaIntensity);
+    this.linterna = new THREE.SpotLight(0xffff76, linternaIntensity);
     this.linterna.position.set(this.camera.position.x, this.camera.position.y, this.camera.position.z);
     this.linterna.angle = Math.PI/10;
     this.linterna.penumbra = 0.4;
@@ -656,7 +656,7 @@ class MyScene extends THREE.Scene {
         if(colision){
           var borrar = true;
           //Objetos no borrables
-          for(var j=1; j<7; j++){
+          for(var j=3; j<9; j++){
             if(this.arrayBalas[i].getObjetoImpacto().object.id == this.children[j].id){
               borrar = false;
             }
