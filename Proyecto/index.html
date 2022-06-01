@@ -3,7 +3,7 @@
 <html>
 
 <head>
-    <title>PROYECTO FINAL</title>
+    <title>Shooting Range</title>
     <meta charset="utf-8">
     <script type="text/javascript" src="../libs/jquery.js"></script>
     <!-- <script type="text/javascript" src="MyScene.js"></script>     -->
@@ -42,6 +42,37 @@
             color: yellow;
             display: none;
         }
+        #tiempo{
+            width: 50%;
+            position: absolute;
+            top: 5%;
+            left: 5%;
+            /* left: 50%; */
+            text-align: left;
+            font-size: 2vw;
+            color: rgb(255, 255, 255);
+            display: none;
+        }
+        #puntuacion{
+            width: 50%;
+            position: absolute;
+            top: 5%;
+            right: 5%;
+            text-align: right;
+            font-size: 2vw;
+            color: rgb(63, 201, 9);
+            display: none;
+        }
+        #pantallaFinal{
+            width: 100%;
+            position: absolute;
+            top: 50%;
+            -ms-transform: translate(0%, -50%);
+            transform: translate(0%, -50%);
+            display: none;
+            text-align: center;
+            font-size: 4vw;
+        }
     </style>
 </head>
 <body>
@@ -58,6 +89,9 @@
     </div>
 </div>
 <div id="cargador"></div>
+<div id="tiempo"></div>
+<div id="puntuacion"></div>
+<div id="pantallaFinal"></div>
 <div id="WebGL-output">
 </div>
 </body>

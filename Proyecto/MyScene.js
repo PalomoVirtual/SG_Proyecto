@@ -44,11 +44,14 @@ const direction = new THREE.Vector3();
 const clockJugador = new THREE.Clock();
 const clockRobot = new THREE.Clock();
 const clockArma = new THREE.Clock();
+const clockPartida = new THREE.Clock();
 var subiendo =  false;
 var valor = 450;
 var signo = 1
 var direccionRobot = new THREE.Vector3(0, 0, 0);
 var tiempoUltimoCambioDireccion = 0;
+var score = 0;
+var acabado = false;
 // var alineables = [];
 
   
@@ -62,8 +65,6 @@ class MyScene extends THREE.Scene {
 
     this.renderer = this.createRenderer(myCanvas);
     
-    this.gui = this.createGUI ();    
-
     this.createLights ();
     
     // this.createMirilla();
@@ -194,6 +195,12 @@ class MyScene extends THREE.Scene {
     const juego = document.getElementById('WebGL-output');
     var cargador = document.getElementById('cargador');
     cargador.textContent = balas + "/" + maxBalas;
+    this.tiempoBloque = document.getElementById('tiempo');
+    this.tiempoBloque.textContent = "Tiempo restante: 30";
+    this.puntuacionBloque = document.getElementById('puntuacion');
+    this.puntuacionBloque.textContent = "Puntuación: 0";
+    var tiempoBloque = this.tiempoBloque;
+    var puntuacionBloque = this.puntuacionBloque;
     
     controles.addEventListener('click', function () {
       controls.lock();
@@ -203,18 +210,42 @@ class MyScene extends THREE.Scene {
       controles.style.display = 'none';
       juego.style.display = 'block';
       cargador.style.display = 'block';
+      tiempoBloque.style.display = 'block';
+      puntuacionBloque.style.display = 'block';
       clockJugador.start();
+      var oldElapsed = clockPartida.getElapsedTime();
+      clockPartida.start();
+      clockPartida.elapsedTime = oldElapsed;
+      clockRobot.start();
+      clockArma.start();
     });
     
     this.cameraControls.addEventListener('unlock', function () {
-      clockJugador.stop();
-      moveBackward = false;
-      moveForward = false;
-      moveLeft = false;
-      moveRight = false;
-      cargador.style.display = 'none';
-      juego.style.display = 'none';
-      controles.style.display = 'block';
+      if(!acabado){
+        clockPartida.stop();
+        clockRobot.stop();
+        clockArma.stop();
+        clockJugador.stop();
+        moveBackward = false;
+        moveForward = false;
+        moveLeft = false;
+        moveRight = false;
+        cargador.style.display = 'none';
+        tiempoBloque.style.display = 'none';
+        puntuacionBloque.style.display = 'none';
+        juego.style.display = 'none';
+        controles.style.display = 'block';
+      }
+      else{
+        var pantallaFinal = document.getElementById('pantallaFinal');
+        pantallaFinal.textContent = "PUNTUACION FINAL: " + score.toString();
+
+        cargador.style.display = 'none';
+        tiempoBloque.style.display = 'none';
+        puntuacionBloque.style.display = 'none';
+        juego.style.display = 'none';
+        pantallaFinal.style.display = 'block';
+      }
     });
     
     this.add(this.cameraControls.getObject());
@@ -449,7 +480,7 @@ class MyScene extends THREE.Scene {
     var ambientLight = new THREE.AmbientLight(0xffffff, 1);
     this.add (ambientLight);
     
-    this.spotLight = new THREE.SpotLight( 0xffffff, this.guiControls.lightIntensity );
+    this.spotLight = new THREE.SpotLight( 0xffffff, 1 );
     this.spotLight.position.set( 0, 200, 300);
     this.spotLight.angle = 2*Math.PI/5;
     this.spotLight.penumbra = 0.4;
@@ -659,8 +690,23 @@ class MyScene extends THREE.Scene {
     this.arrayBalas.splice(indice, 1);
   }
   
+  muestraPantallaFinal(){
+    // const juego = document.getElementById('WebGL-output');
+    // var pantallaFinal = document.getElementById('pantallaFinal');
+    // pantallaFinal.textContent = "PUNTUACION FINAL: " + score.toString();
+    
+    // this.cargador.style.display = 'none';
+    // this.tiempoBloque.style.display = 'none';
+    // this.puntuacionBloque.style.display = 'none';
+    // juego.style.display = 'none';
+    // pantallaFinal.style.display = 'block';
+
+    this.cameraControls.unlock();
+  }
 
   update () {
+    // console.log(clockPartida.getElapsedTime());
+    this.tiempoBloque.textContent = "Tiempo restante: " + (30-Math.round(clockPartida.getElapsedTime())).toString();
     if(this.cameraControls.isLocked){
       // if(contador == 0){
       //   // console.log(this.arrayBalas);
@@ -696,6 +742,8 @@ class MyScene extends THREE.Scene {
                   objeto = objeto.parent;
               }
               if(objeto.parent == this){
+                score += 500;
+                this.puntuacionBloque.textContent = "Puntuacion: " + score.toString();
                 this.getObjectById(objeto.id).deleteGeometry();
                 this.getObjectById(objeto.id).deleteMaterial();
                 // var id = objeto.id;
@@ -731,7 +779,14 @@ class MyScene extends THREE.Scene {
       }
     }
 
-    requestAnimationFrame(() => this.update());
+    if(clockPartida.getElapsedTime() < 10){
+      requestAnimationFrame(() => this.update());
+    }
+    else{
+      acabado = true;
+      this.muestraPantallaFinal();
+      // requestAnimationFrame(() => this.muestraPantallaFinal());
+    }
   }
 }
 
@@ -746,6 +801,7 @@ $(function () {
   direccionRobot.normalize();
   scene.robot.lookAt(scene.robot.position.x + direccionRobot.x, scene.robot.position.y, scene.robot.position.z + direccionRobot.z);
   clockRobot.start();
+  clockPartida.stop();
   scene.update();
   // scene.cameraControls.unlock();
 });
