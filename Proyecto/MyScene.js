@@ -2,7 +2,6 @@
 // Clases de la biblioteca
 
 import * as THREE from '../libs/three.module.js'
-import { GUI } from '../libs/dat.gui.module.js'
 import { PointerLockControls } from '../libs/PointerLockControls.js'
 
 // Clases de mi proyecto
@@ -253,7 +252,7 @@ class MyScene extends THREE.Scene {
     //Añado mirilla y arma a la cámara para que se muevan con la cámara
     this.add(this.cameraControls.getObject());
     this.camera.add(this.mirilla);
-    this.camera.add(this.model);
+    this.camera.add(this.arma);
   }
 
   //Crea los listeners para disparos, recarga, movimiento y salto
@@ -262,7 +261,7 @@ class MyScene extends THREE.Scene {
     var cameraControls = this.cameraControls;
     var raycaster = this.raycaster;
     var thisRef = this;
-    var arma = this.model;
+    var arma = this.arma;
     var alineables = this.alineables;
 
     var idIntervalo;
@@ -391,6 +390,7 @@ class MyScene extends THREE.Scene {
     this.add (background);
   }
 
+  //Creación de las luces de la escena
   createLights () {
     // var ambientLight = new THREE.AmbientLight(0xccddee, 0.35);
     var ambientLight = new THREE.AmbientLight(0xffffff, 1);
@@ -406,14 +406,7 @@ class MyScene extends THREE.Scene {
     this.add (this.spotLight.target);
   }
   
-  setLightIntensity (valor) {
-    this.spotLight.intensity = valor;
-  }
-  
-  setAxisVisible (valor) {
-    this.axis.visible = valor;
-  }
-  
+  //Creación del renderer de la escena
   createRenderer (myCanvas) {
     var renderer = new THREE.WebGLRenderer();
     
@@ -426,24 +419,15 @@ class MyScene extends THREE.Scene {
     return renderer;  
   }
   
-  createPersonaje(){
-    // this.model = new Personaje(this.gui, "Controles modelo");
-    // this.model.scale.set(0.1, 0.1, 0.1);
-    // this.model.rotation.y = Math.PI;
-    // // this.model.rotation.x = Math.PI/2;
-    // this.model.position.y = -10;
-    // // this.model.position.y = -5;
-    // // this.model.position.z = 1.80;
-    // this.model.position.z = -25;
-    // // this.add (this.model);
-    
-    this.model = new Arma();
-    this.model.scale.set(0.08, 0.08, 0.08);
-    this.model.rotation.y = Math.PI;
-    this.model.position.y = -5;
-    this.model.position.x = 5;
-    this.model.position.z = -5.80;
-    this.add(this.model);
+  //Creación del arma que representa el jugador en primera persona de la escena
+  createPersonaje(){    
+    this.arma = new Arma();
+    this.arma.scale.set(0.08, 0.08, 0.08);
+    this.arma.rotation.y = Math.PI;
+    this.arma.position.y = -5;
+    this.arma.position.x = 5;
+    this.arma.position.z = -5.80;
+    this.add(this.arma);
   }
 
   getCamera () {
@@ -462,13 +446,10 @@ class MyScene extends THREE.Scene {
   }
 
   actualizaPosicionRobot(){
-    // debugger;
     if(clockRobot.running){
       var delta = clockRobot.getDelta();
-      // console.log(clockRobot.getElapsedTime());
       var tiempo = Math.floor(clockRobot.getElapsedTime());
-      // console.log(tiempo);
-      // console.log(tiempoUltimoCambioDireccion);
+      
       if(tiempo-tiempoUltimoCambioDireccion > 1){
         tiempoUltimoCambioDireccion = tiempo;
         direccionRobot.x = Math.random()*2-1;
@@ -476,6 +457,7 @@ class MyScene extends THREE.Scene {
         direccionRobot.normalize();
         this.robot.lookAt(this.robot.position.x + direccionRobot.x, this.robot.position.y, this.robot.position.z + direccionRobot.z);
       }
+
       this.robot.position.x += direccionRobot.x * CHARACTERSPEED/10*delta;
       this.robot.position.z += direccionRobot.z * CHARACTERSPEED/10*delta;
       if(this.robot.position.x > 496 || this.robot.position.x < -496){
@@ -504,29 +486,28 @@ class MyScene extends THREE.Scene {
 
   actualizaArma(){
     if(clockArma.running){
-      if(subiendo && this.model.rotation.x < Math.PI/20){
-        this.model.rotation.x += RETROCESOSPEED * clockArma.getDelta(); 
+      if(subiendo && this.arma.rotation.x < Math.PI/20){
+        this.arma.rotation.x += RETROCESOSPEED * clockArma.getDelta(); 
       }
-      else if(subiendo && this.model.rotation.x >= Math.PI/20){
+      else if(subiendo && this.arma.rotation.x >= Math.PI/20){
         subiendo = false;
       }
-      else if(!subiendo && this.model.rotation.x > 0){
-        this.model.rotation.x -= RETROCESOSPEED * clockArma.getDelta(); 
+      else if(!subiendo && this.arma.rotation.x > 0){
+        this.arma.rotation.x -= RETROCESOSPEED * clockArma.getDelta(); 
       }
-      else if(!subiendo && this.model.rotation.x <= 0){
-        this.model.rotation.x = 0;
+      else if(!subiendo && this.arma.rotation.x <= 0){
+        this.arma.rotation.x = 0;
         clockArma.stop();
       }
     }
   }
   
   actualizaPosicion(){
-    if ( this.cameraControls.isLocked === true ) {
+    if(this.cameraControls.isLocked === true){
       var delta = clockJugador.getDelta();
 
       velocity.x -= velocity.x * FACTORFRENADO * delta;
       velocity.z -= velocity.z * FACTORFRENADO * delta;
-      
       velocity.y -= GRAVEDAD * delta;
       
       direction.z = Number( moveForward ) - Number( moveBackward );
@@ -568,28 +549,6 @@ class MyScene extends THREE.Scene {
         var signo = this.cameraControls.getObject().position.z / Math.abs(this.cameraControls.getObject().position.z);
         this.cameraControls.getObject().position.z = 496 * signo;
       }
-
-      // var look = this.cameraControls.getDirection();
-      // var look = new THREE.Vector3 (0,0,0);
-      // this.camera.children[0].rotation
-      // look = this.cameraControls.getDirection(look);
-      // var x = look.x, y = look.y, z = look.z;
-      // var gradosCompensacion;
-      // if(y > 0){
-      //   gradosCompensacion = Math.atan(Math.sqrt(Math.pow(x, 2) + Math.pow(z, 2)) / y) - Math.PI/2;
-      // }
-      // else if(y < 0){
-      //   gradosCompensacion = Math.atan(Math.sqrt(Math.pow(x, 2) + Math.pow(z, 2)) / y) + Math.PI/2;
-      // }
-      // else{
-      //   gradosCompensacion = 0;
-      // }
-      // this.camera.children[0].rotation.x = gradosCompensacion;
-      // this.camera.children[0].position.y = -10;
-      // this.camera.children[0].position.z = -40.8;
-      // console.log(this.cameraControls.getDirection(look));
-      // console.log((180/Math.PI)*gradosCompensacion);
-
     }
   }
 
@@ -613,39 +572,39 @@ class MyScene extends THREE.Scene {
     
       this.actualizaArma();
 
-      // this.model.update();
       this.actualizaPosicion();
   
       for(var i = 0; i<this.arrayBalas.length; i++){
         var colision = this.arrayBalas[i].update();
         if(colision){
           var borrar = true;
+          //Objetos no borrables
           for(var j=3; j<9; j++){
             if(this.arrayBalas[i].getObjetoImpacto().object.id == this.children[j].id){
               borrar = false;
             }
           }
+
           if(borrar){
             var objeto = this.arrayBalas[i].getObjetoImpacto().object;
             if(objeto != null){
-              console.log(objeto);
               while(objeto.parent != null && objeto.parent != this){
                   objeto = objeto.parent;
               }
+
               if(objeto.parent == this){
                 score += 500;
                 this.puntuacionBloque.textContent = "Puntuacion: " + score.toString();
+                //Lo borro y lo creo de nuevo para evitar que puedan contabilizarse más de 1 vez los puntos, 
+                //ya que después de la primera si se contabiliza un impacto ya ocurrido, no se entrará en este if
                 this.getObjectById(objeto.id).deleteGeometry();
                 this.getObjectById(objeto.id).deleteMaterial();
-                // var id = objeto.id;
                 for(var j=0; j<this.alineables.length; j++){
-                  // console.log(this.alineables[j]);
                   if(objeto.id == this.alineables[j].id){
                     this.alineables.splice(j, 1);
                   }
                 }
-                // objeto.geometry.dispose();
-                // objeto.material.dispose();
+
                 this.remove(objeto);
                 clockRobot.stop();
     
@@ -666,9 +625,6 @@ class MyScene extends THREE.Scene {
           }
 
           this.arrayBalas[i].destruir();
-          // if(this.arrayBalas[i].objetoImpacto.id != this.ground){
-
-          // }
         }
       }
     }
@@ -679,7 +635,6 @@ class MyScene extends THREE.Scene {
     else{
       acabado = true;
       this.muestraPantallaFinal();
-      // requestAnimationFrame(() => this.muestraPantallaFinal());
     }
   }
 }
