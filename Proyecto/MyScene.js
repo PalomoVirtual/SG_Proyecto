@@ -187,6 +187,7 @@ class MyScene extends THREE.Scene {
     this.cameraControls = new PointerLockControls( this.camera, document.body );
     this.cameraControls.minPolarAngle = VMIN;
     this.cameraControls.maxPolarAngle = VMAX;
+    this.cameraControls.unlock();
     var controls = this.cameraControls;
     
     const controles = document.getElementById('controles');
@@ -521,10 +522,10 @@ class MyScene extends THREE.Scene {
       var tiempo = Math.floor(clockRobot.getElapsedTime());
       // console.log(tiempo);
       // console.log(tiempoUltimoCambioDireccion);
-      if(tiempo-tiempoUltimoCambioDireccion > 2){
+      if(tiempo-tiempoUltimoCambioDireccion > 1){
         tiempoUltimoCambioDireccion = tiempo;
-        direccionRobot.x = Math.random()*1/direccionRobot.x;
-        direccionRobot.z = Math.random()*1/direccionRobot.z;
+        direccionRobot.x = Math.random()*2-1;
+        direccionRobot.z = Math.random()*2-1;
         direccionRobot.normalize();
         this.robot.lookAt(this.robot.position.x + direccionRobot.x, this.robot.position.y, this.robot.position.z + direccionRobot.z);
       }
@@ -689,21 +690,37 @@ class MyScene extends THREE.Scene {
           }
           if(borrar){
             var objeto = this.arrayBalas[i].getObjetoImpacto().object;
-            while(objeto.parent != this){
-              objeto = objeto.parent;
-            }
-            this.getObjectById(objeto.id).deleteGeometry();
-            this.getObjectById(objeto.id).deleteMaterial();
-            // var id = objeto.id;
-            for(var j=0; j<this.alineables.length; j++){
-              // console.log(this.alineables[j]);
-              if(objeto.id == this.alineables[j].id){
-                this.alineables.splice(j, 1);
+            if(objeto != null){
+              console.log(objeto);
+              while(objeto.parent != null && objeto.parent != this){
+                  objeto = objeto.parent;
+              }
+              if(objeto.parent == this){
+                this.getObjectById(objeto.id).deleteGeometry();
+                this.getObjectById(objeto.id).deleteMaterial();
+                // var id = objeto.id;
+                for(var j=0; j<this.alineables.length; j++){
+                  // console.log(this.alineables[j]);
+                  if(objeto.id == this.alineables[j].id){
+                    this.alineables.splice(j, 1);
+                  }
+                }
+                // objeto.geometry.dispose();
+                // objeto.material.dispose();
+                this.remove(objeto);
+                clockRobot.stop();
+    
+                this.robot = new Robot();
+                this.robot.scale.set(0.1, 0.1, 0.1);
+                this.robot.position.y = 156/10;
+                this.add(this.robot);
+                this.alineables.push(this.robot);
+                direccionRobot.x = Math.random()*2-1;
+                direccionRobot.z = Math.random()*2-1;
+                direccionRobot.normalize();
+                clockRobot.start();
               }
             }
-            // objeto.geometry.dispose();
-            // objeto.material.dispose();
-            this.remove(objeto);
           }
 
           this.arrayBalas[i].destruir();
@@ -724,10 +741,11 @@ $(function () {
   
   window.addEventListener ("resize", () => scene.onWindowResize());
   
-  direccionRobot.x = Math.random();
-  direccionRobot.z = Math.random();
+  direccionRobot.x = Math.random()*2-1;
+  direccionRobot.z = Math.random()*2-1;
   direccionRobot.normalize();
   scene.robot.lookAt(scene.robot.position.x + direccionRobot.x, scene.robot.position.y, scene.robot.position.z + direccionRobot.z);
   clockRobot.start();
   scene.update();
+  // scene.cameraControls.unlock();
 });
