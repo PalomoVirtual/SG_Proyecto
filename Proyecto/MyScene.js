@@ -14,8 +14,7 @@ import { Robot } from './Robot.js'
 //Constantes útiles
 const VMIN = 0;
 const VMAX = Math.PI;
-const CHARACTERSPEED = 1400;
-const CHARACTERHEIGHT = 20;
+const MAXCHARACTERSPEED = 1400;
 const CERO = 0.01;
 const GRAVEDAD = 980;
 const FACTORFRENADO = 10;
@@ -29,6 +28,7 @@ const XZLIMIT = 496;
 const BULLETSCALEFACTOR = 0.2;
 const ARMASCALEFACTOR = 0.08;
 const RETROCESORANGO = Math.PI/20;
+const MAXCHARACTERHEIGHT = 20;
 
 //Variables de control de movimiento
 var moveForward = false;
@@ -39,6 +39,8 @@ var canJump = false;
 const velocity = new THREE.Vector3();
 const direction = new THREE.Vector3();
 const clockJugador = new THREE.Clock();
+var characterHeight = MAXCHARACTERHEIGHT;
+var characterSpeed = MAXCHARACTERSPEED;
 
 //Variables de control de disparo
 const MAXBALAS = 40;
@@ -126,6 +128,28 @@ class MyScene extends THREE.Scene {
         var cargador = document.getElementById('cargador');
         cargador.textContent = balas + "/" + MAXBALAS;
         break;
+      
+      case "KeyC":
+        if(characterHeight != 2*MAXCHARACTERHEIGHT/3){
+          characterHeight = 2*MAXCHARACTERHEIGHT/3;
+          characterSpeed = MAXCHARACTERSPEED/2;
+        }
+        else{
+          characterHeight = MAXCHARACTERHEIGHT;
+          characterSpeed = MAXCHARACTERSPEED;
+        }
+        break;
+
+      case "KeyZ":
+        if(characterHeight != MAXCHARACTERHEIGHT/3){
+          characterHeight = MAXCHARACTERHEIGHT/3;
+          characterSpeed = MAXCHARACTERSPEED/6;
+        }
+        else{
+          characterHeight = MAXCHARACTERHEIGHT;
+          characterSpeed = MAXCHARACTERSPEED;
+        }
+        break;
         
     }
       
@@ -186,8 +210,8 @@ class MyScene extends THREE.Scene {
   //Creación de la cámara y de sus controles. Utilizada librería externa para el control de la cámara
   createCamera () {
     this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 2200);
-    this.camera.position.set (0, CHARACTERHEIGHT, -300);
-    var look = new THREE.Vector3 (0, CHARACTERHEIGHT, 0);
+    this.camera.position.set (0, characterHeight, -300);
+    var look = new THREE.Vector3 (0, characterHeight, 0);
     this.camera.lookAt(look);
     this.add (this.camera);
     
@@ -466,8 +490,8 @@ class MyScene extends THREE.Scene {
         this.robot.lookAt(this.robot.position.x + direccionRobot.x, this.robot.position.y, this.robot.position.z + direccionRobot.z);
       }
 
-      this.robot.position.x += direccionRobot.x * CHARACTERSPEED/10*delta;
-      this.robot.position.z += direccionRobot.z * CHARACTERSPEED/10*delta;
+      this.robot.position.x += direccionRobot.x * characterSpeed/10*delta;
+      this.robot.position.z += direccionRobot.z * characterSpeed/10*delta;
       if(this.robot.position.x > XZLIMIT || this.robot.position.x < -XZLIMIT){
         if(this.robot.position.x > 0){
           this.robot.position.x = XZLIMIT;
@@ -523,7 +547,7 @@ class MyScene extends THREE.Scene {
       direction.normalize();
       
       if(moveForward || moveBackward){
-        velocity.z -= direction.z * CHARACTERSPEED * delta;
+        velocity.z -= direction.z * characterSpeed * delta;
       }
       else{
         if(Math.abs(velocity.z) <= CERO){
@@ -532,7 +556,7 @@ class MyScene extends THREE.Scene {
       }
 
       if(moveLeft || moveRight){
-        velocity.x -= direction.x * CHARACTERSPEED * delta;
+        velocity.x -= direction.x * characterSpeed * delta;
       }
       else{
         if(Math.abs(velocity.x) <= CERO){
@@ -544,9 +568,9 @@ class MyScene extends THREE.Scene {
       this.cameraControls.moveForward( - velocity.z * delta );
       this.cameraControls.getObject().position.y += ( velocity.y * delta );
       
-      if(this.cameraControls.getObject().position.y < CHARACTERHEIGHT){
+      if(this.cameraControls.getObject().position.y < characterHeight){
         velocity.y = 0;
-        this.cameraControls.getObject().position.y = CHARACTERHEIGHT;
+        this.cameraControls.getObject().position.y = characterHeight;
         canJump = true;
       }
       if(Math.abs(this.cameraControls.getObject().position.x) > XZLIMIT){
