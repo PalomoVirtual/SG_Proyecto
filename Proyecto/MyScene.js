@@ -532,8 +532,8 @@ class MyScene extends THREE.Scene {
         this.robot.lookAt(this.robot.position.x + direccionRobot.x, this.robot.position.y, this.robot.position.z + direccionRobot.z);
       }
 
-      this.robot.position.x += direccionRobot.x * characterSpeed/10*delta;
-      this.robot.position.z += direccionRobot.z * characterSpeed/10*delta;
+      this.robot.position.x += direccionRobot.x * MAXCHARACTERSPEED/10*delta;
+      this.robot.position.z += direccionRobot.z * MAXCHARACTERSPEED/10*delta;
       if(this.robot.position.x > XZLIMIT || this.robot.position.x < -XZLIMIT){
         if(this.robot.position.x > 0){
           this.robot.position.x = XZLIMIT;
