@@ -4,7 +4,7 @@ import * as THREE from '../libs/three.module.js'
 const MINCOLISION = 5;
 
 class Proyectil extends THREE.Object3D {
-  constructor(escena, arma, masCercano) {
+  constructor(escena, masCercano) {
     super();
 
     var bulletMaterial = new THREE.MeshStandardMaterial({roughness: 0.5, metalness: 1, color: 0xd4af37});
@@ -13,7 +13,6 @@ class Proyectil extends THREE.Object3D {
     this.velocity = 0;
     this.clock = new THREE.Clock();
     this.escena = escena;
-    this.arma = arma;
     this.objetoImpacto = masCercano;
 
     this.add(this.bullet);
@@ -24,7 +23,6 @@ class Proyectil extends THREE.Object3D {
     this.puntoActual = puntoOrigen;
     this.puntoImpacto = puntoImpacto;
     this.trayectoria = new THREE.Vector3(puntoImpacto.x-puntoOrigen.x, puntoImpacto.y-puntoOrigen.y, puntoImpacto.z-puntoOrigen.z);
-    this.trayectoriaNormalized = new THREE.Vector3().copy(this.trayectoria).normalize();
     this.longitudTrayectoria = Math.sqrt(Math.pow(this.trayectoria.x, 2) + Math.pow(this.trayectoria.y, 2) + Math.pow(this.trayectoria.z, 2));
   }
 

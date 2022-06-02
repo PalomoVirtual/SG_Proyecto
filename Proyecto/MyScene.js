@@ -1,4 +1,3 @@
-
 // Clases de la biblioteca
 
 import * as THREE from '../libs/three.module.js'
@@ -344,7 +343,7 @@ class MyScene extends THREE.Scene {
         if(alineados.length > 0){
           var masCercano = alineados[0];
           var puntoImpacto = masCercano.point;
-          var bala = new Proyectil(thisRef, arma, masCercano);
+          var bala = new Proyectil(thisRef, masCercano);
           bala.scale.set(BULLETSCALEFACTOR, BULLETSCALEFACTOR, BULLETSCALEFACTOR);
           bala.velocity = BULLETSPEED;
           
