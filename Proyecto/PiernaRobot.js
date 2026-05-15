@@ -1,5 +1,5 @@
 
-import * as THREE from '../libs/three.module.js'
+import * as THREE from '/SG_Proyecto/libs/three.module.js'
 
 class PiernaRobot extends THREE.Object3D {
   constructor() {

@@ -1,7 +1,7 @@
 // Clases de la biblioteca
 
-import * as THREE from '../libs/three.module.js'
-import { PointerLockControls } from '../libs/PointerLockControls.js'
+import * as THREE from '/SG_Proyecto/libs/three.module.js'
+import { PointerLockControls } from '/SG_Proyecto/libs/PointerLockControls.js'
 
 // Clases de mi proyecto
 
@@ -408,7 +408,7 @@ class MyScene extends THREE.Scene {
 
   //Creación de los muros de la escena. No destruibles con disparos
   createWalls(){
-    var texture = new THREE.TextureLoader().load('../imgs/muro1.jpg');
+    var texture = new THREE.TextureLoader().load('/SG_Proyecto/imgs/muro1.jpg');
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
     texture.repeat.set(128, 4);
@@ -444,7 +444,7 @@ class MyScene extends THREE.Scene {
   createBackground(){
     var geometryBackground = new THREE.SphereGeometry (XZLIMIT*2+508,100,100);
     
-    var texture = new THREE.TextureLoader().load('../imgs/fondo3.jpg');
+    var texture = new THREE.TextureLoader().load('/SG_Proyecto/imgs/fondo3.jpg');
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
     texture.repeat.set(16, 2);

@@ -1,5 +1,5 @@
 
-import * as THREE from '../libs/three.module.js'
+import * as THREE from '/SG_Proyecto/libs/three.module.js'
 import { ManoRobot } from './ManoRobot.js';
 
 class BrazoRobot extends THREE.Object3D {
