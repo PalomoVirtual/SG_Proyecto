@@ -391,7 +391,7 @@ class MyScene extends THREE.Scene {
   createGround () {
     var geometryGround = new THREE.BoxGeometry (XZLIMIT*2+8,0.2,XZLIMIT*2+8);
     
-    var texture = new THREE.TextureLoader().load('SG_Proyecto/imgs/suelo3.jpg');
+    var texture = new THREE.TextureLoader().load('/SG_Proyecto/imgs/suelo3.jpg');
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
     texture.repeat.set(64, 64);
